@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/loginButtonOTP"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/register"
+    tools:context=".LoginWithPhone">
+
+
+    <EditText
+        android:id="@+id/loginPhone"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="40dp"
+        android:ems="10"
+        android:hint="Phone"
+        android:inputType="phone"
+        android:maxLength="10"
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/loginCC"
+        app:layout_constraintTop_toBottomOf="@+id/textView42" />
+
+    <EditText
+        android:id="@+id/loginCC"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="40dp"
+        android:ems="10"
+        android:hint="+91"
+        android:inputType="phone"
+        android:maxLength="3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView42" />
+
+    <Button
+        android:id="@+id/requestOtpBtn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:onClick="requestOTP"
+        android:text="Request OTP"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button3" />
+
+    <EditText
+        android:id="@+id/otpNumberOne2"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:ems="10"
+        android:focusable="auto"
+        android:inputType="number"
+        android:maxLength="1"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/loginPhone" />
+
+    <EditText
+        android:id="@+id/optNumberTwo2"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:ems="10"
+        android:inputType="number"
+        android:maxLength="1"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:visibility="gone"
+        app:layout_constraintBaseline_toBaselineOf="@+id/otpNumberOne2"
+        app:layout_constraintStart_toEndOf="@+id/otpNumberOne2" />
+
+    <EditText
+        android:id="@+id/otpNumberThree2"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:ems="10"
+        android:inputType="number"
+        android:maxLength="1"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:visibility="gone"
+        app:layout_constraintBaseline_toBaselineOf="@+id/optNumberTwo2"
+        app:layout_constraintStart_toEndOf="@+id/optNumberTwo2" />
+
+    <EditText
+        android:id="@+id/otpNumberFour2"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:ems="10"
+        android:inputType="number"
+        android:maxLength="1"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:visibility="gone"
+        app:layout_constraintBaseline_toBaselineOf="@+id/otpNumberThree2"
+        app:layout_constraintStart_toEndOf="@+id/otpNumberThree2" />
+
+    <EditText
+        android:id="@+id/otpNumberFive2"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:ems="10"
+        android:inputType="number"
+        android:maxLength="1"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:visibility="gone"
+        app:layout_constraintBaseline_toBaselineOf="@+id/otpNumberFour2"
+        app:layout_constraintStart_toEndOf="@+id/otpNumberFour2" />
+
+    <EditText
+        android:id="@+id/optNumberSix2"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:ems="10"
+        android:inputType="number"
+        android:maxLength="1"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:visibility="gone"
+        app:layout_constraintBaseline_toBaselineOf="@+id/otpNumberFive2"
+        app:layout_constraintStart_toEndOf="@+id/otpNumberFive2" />
+
+    <TextView
+        android:id="@+id/textView32"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="32dp"
+        android:text="You can request a new OTP after 30 seconds"
+        android:textColor="@color/white"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.445"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/resendOTP"
+        app:layout_constraintVertical_bias="0.045" />
+
+    <Button
+        android:id="@+id/resendOTP"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:text="Resend OTP"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/requestOtpBtn" />
+
+    <TextView
+        android:id="@+id/textView42"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:fontFamily="sans-serif-black"
+        android:text="Login using phone number\n   (Verified numbers only)"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.534"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:text="Login"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/otpNumberOne2" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <item android:title="General">
+        <menu>
+            <item
+                android:id="@+id/inventory_list"
+                android:title="Inventory"
+                android:icon="@drawable/ic_inventory"/>
+            <item
+                android:id="@+id/events_list"
+                android:title="Events"
+                android:icon="@drawable/round_groups_24"/>
+            <item
+                android:id="@+id/notes_list"
+                android:title="Notes"
+                android:icon="@drawable/round_notes_24"/>
+        </menu>
+    </item>
+
+    <item android:title="User">
+        <menu>
+            <item
+                android:id="@+id/account"
+                android:icon="@drawable/ic_account"
+                android:title="Account" />
+
+            <item
+                android:id="@+id/settings"
+                android:icon="@drawable/ic_settings"
+                android:title="Settings" />
+
+            <item
+                android:id="@+id/logout"
+                android:title="Logout"
+                android:icon="@drawable/ic_logout"/>
+        </menu>
+    </item>
+
+
+    <item
+        android:id="@+id/sharing"
+        android:icon="?attr/actionModeShareDrawable"
+        android:title="Sharing" />
+
+    <item
+        android:id="@+id/feedback"
+        android:icon="@drawable/ic_feedback"
+        android:title="Feedback" />
+
+</menu>
