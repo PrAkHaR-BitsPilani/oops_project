@@ -1,15 +1,9 @@
 package com.example.oops_project;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -18,44 +12,23 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.AccessToken;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.login.LoginManager;
-import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.api.ApiException;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
-
-import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 
 public class Login extends AppCompatActivity {
 
-    EditText mEmail, mPassword;
-    Button mLoginBtn;
+    EditText loginEmail, loginPassword;
+    Button loginBtn;
     TextView mRegisterBtn, mForgotPassword;
     ProgressBar progressBar;
 
@@ -67,13 +40,17 @@ public class Login extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        mEmail = findViewById(R.id.personEmail);
-        mPassword = findViewById(R.id.personPassword);
+        // INITIALIZING ALL COMPONENTS
+
+        loginEmail = findViewById(R.id.personEmail);
+        loginPassword = findViewById(R.id.personPassword);
         progressBar = findViewById(R.id.progressBar2);
-        mLoginBtn = findViewById(R.id.buttonLogin);
+        loginBtn = findViewById(R.id.buttonLogin);
         mRegisterBtn = findViewById(R.id.notMember);
         mForgotPassword = findViewById(R.id.forgotPassword);
         firebaseAuth = FirebaseAuth.getInstance();
+
+        //GO TO DASHBOARD IF USER HASN'T LOGGED OUT
 
         if(firebaseAuth.getCurrentUser() != null) {
             if (firebaseAuth.getCurrentUser().getEmail() != null) {
@@ -81,29 +58,31 @@ public class Login extends AppCompatActivity {
             }
         }
 
-        mLoginBtn.setOnClickListener(new View.OnClickListener() {
+        // FUNCTIONALITY OF LOGIN BUTTON
+
+        loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = mEmail.getText().toString().trim();
-                String password = mPassword.getText().toString().trim();
+                String email = loginEmail.getText().toString().trim();
+                String password = loginPassword.getText().toString().trim();
 
                 if(TextUtils.isEmpty(email)) {
-                    mEmail.setError("E-mail field cannot be empty!");
+                    loginEmail.setError("E-mail field cannot be empty!");
                     return;
                 }
 
                 if(!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")) {
-                    mEmail.setError("E-mail is badly formatted!");
+                    loginEmail.setError("E-mail is badly formatted!");
                     return;
                 }
 
                 if(TextUtils.isEmpty(password)) {
-                    mPassword.setError("Password field cannot be empty!");
+                    loginPassword.setError("Password field cannot be empty!");
                     return;
                 }
 
                 if(password.length() < 8) {
-                    mPassword.setError("Password must have 8 or more characters!");
+                    loginPassword.setError("Password must have 8 or more characters!");
                     return;
                 }
 
@@ -168,7 +147,7 @@ public class Login extends AppCompatActivity {
             }
         });
 
-        //Switch to register screen
+        //FUNCTIONAlITY OF REGISTER BUTTON
 
         mRegisterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -177,7 +156,7 @@ public class Login extends AppCompatActivity {
             }
         });
 
-        //Forgot password
+        //FUNCTIONALITY OF FORGOT PASSWORD
 
         mForgotPassword.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -223,6 +202,8 @@ public class Login extends AppCompatActivity {
 
         });
     }
+
+    // FUNCTIONALITY OF LOGIN USING PHONE BUTTON
 
     public void loginViaPhone(View view) {
         startActivity(new Intent(getApplicationContext(), LoginWithPhone.class));

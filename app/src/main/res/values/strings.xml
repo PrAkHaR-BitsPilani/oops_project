@@ -2,4 +2,6 @@
     <string name="app_name">Dashboard</string>
     <string name="close">close</string>
     <string name="open">open</string>
+    <string name="loginpage">LoginPage</string>
+    <string name="register_page">Register Page</string>
 </resources>

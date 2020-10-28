@@ -51,12 +51,12 @@
         android:layout_width="156dp"
         android:layout_height="126dp"
         android:layout_marginStart="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline5"
+        app:layout_constraintBottom_toBottomOf="@+id/profilePhone"
         app:layout_constraintEnd_toStartOf="@+id/guideline4"
-        app:layout_constraintHorizontal_bias="0.224"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.446"
+        app:layout_constraintTop_toTopOf="@+id/profileName"
+        app:layout_constraintVertical_bias="0.385"
         app:srcCompat="@mipmap/user_image" />
 
     <androidx.constraintlayout.widget.Guideline
@@ -64,33 +64,34 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_begin="221dp" />
+        app:layout_constraintGuide_begin="205dp" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="303dp" />
+        app:layout_constraintGuide_end="366dp" />
 
     <TextView
         android:id="@+id/profileName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="76dp"
+        android:layout_marginTop="92dp"
         android:text="Name"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.3"
+        app:layout_constraintHorizontal_bias="0.514"
         app:layout_constraintStart_toStartOf="@+id/guideline4"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/profileEmail"
-        android:layout_width="wrap_content"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="32dp"
         android:text="Email"
         app:layout_constraintEnd_toEndOf="@+id/profileName"
+        app:layout_constraintHorizontal_bias="0.52"
         app:layout_constraintStart_toStartOf="@+id/profileName"
         app:layout_constraintTop_toBottomOf="@+id/profileName" />
 
@@ -100,8 +101,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="36dp"
         android:text="Phone"
-        app:layout_constraintEnd_toEndOf="@+id/profileEmail"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/profileEmail"
+        app:layout_constraintEnd_toEndOf="@+id/profileName"
+        app:layout_constraintHorizontal_bias="0.51"
+        app:layout_constraintStart_toStartOf="@+id/profileName"
         app:layout_constraintTop_toBottomOf="@+id/profileEmail" />
 </androidx.constraintlayout.widget.ConstraintLayout>

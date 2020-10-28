@@ -6,9 +6,7 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,7 +29,10 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
-public class Dashboard extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class Dashboard extends AppCompatActivity implements
+        NavigationView.OnNavigationItemSelectedListener,
+        frag_account.frag_account_events
+{
 
     private FloatingActionButton add_button;
     private DrawerLayout drawer;
@@ -40,8 +41,11 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
     private NavigationView navigationView;
     private FragmentManager frag_manager;
     private FragmentTransaction frag_trans;
-    private ImageView user_image;
     private boolean doubleBackToExitPressedOnce = false;
+    EditText mCC, mEnteredPhone;
+    String passPhone;
+    private TextView userNameNav;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +65,20 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
         toggler.setDrawerIndicatorEnabled(true);
         toggler.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.white));
         toggler.syncState();
+        View headerView = navigationView.getHeaderView(0);
+        userNameNav = headerView.findViewById(R.id.user_name);
+
+            final DocumentReference documentReference = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+            documentReference.addSnapshotListener(this , new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+
+                    if (value != null) {
+                        userNameNav.setText(value.getString("name"));
+                    }
+                }
+            });
 
         //creating add button
 
@@ -116,39 +134,8 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                 add_button.hide();
                 frag_manager = getSupportFragmentManager();
                 frag_trans = frag_manager.beginTransaction();
-                frag_trans.replace(R.id.container_fragment , new frag_account());
-                frag_trans.commit();
-                /*String n = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
-
-                mCC = findViewById(R.id.CC2);
-                mEnteredPhone = findViewById(R.id.personPhone2);
-                verify = findViewById(R.id.phoneVerify);
-
-               if(n != null && !TextUtils.isEmpty(n) && !TextUtils.isDigitsOnly(n)) {
-                    mCC.setVisibility(View.GONE);
-                    mEnteredPhone.setVisibility(View.GONE);
-                    verify.setVisibility(View.GONE);
-                }
-
-                name = findViewById(R.id.profileName);
-                email = findViewById(R.id.profileEmail);
-                phone = findViewById(R.id.profilePhone);
-
-                firebaseFirestore = FirebaseFirestore.getInstance();
-
-                userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-                DocumentReference documentReference = firebaseFirestore.collection("users").document(userID);
-                documentReference.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                        if (value != null) {
-                            name.setText(value.getString("name"));
-                            email.setText(value.getString("email"));
-                            phone.setText(value.getString("phone"));
-                        }
-                    }
-                });*/
+                frag_trans.replace(R.id.container_fragment , new frag_account(this));
+                frag_trans.commitNow();
                 break;
 
             case R.id.sharing:
@@ -176,7 +163,6 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                 break;
 
             case R.id.logout:
-                //Toast.makeText(this, "Back to Aneesh", Toast.LENGTH_SHORT).show();
                 FirebaseAuth.getInstance().signOut();
                 if(FirebaseAuth.getInstance().getCurrentUser() == null) {
                     Toast.makeText(Dashboard.this, "Logout successful!", Toast.LENGTH_SHORT).show();
@@ -211,5 +197,43 @@ public class Dashboard extends AppCompatActivity implements NavigationView.OnNav
                 doubleBackToExitPressedOnce=false;
             }
         }, 2000);
+    }
+
+    @Override
+    public void verifyBtnClicked() {
+
+        mCC = findViewById(R.id.CC2);
+        mEnteredPhone = findViewById(R.id.personPhone2);
+
+        if(TextUtils.isEmpty(mEnteredPhone.getText().toString().trim())) {
+            mEnteredPhone.setError("Phone field cannot be empty!");
+            return;
+        }
+
+        if(!TextUtils.isDigitsOnly(mEnteredPhone.getText().toString().trim())) {
+            mEnteredPhone.setError("Phone field must contain only digits!");
+            return;
+        }
+
+        if(!TextUtils.isDigitsOnly(mCC.getText().toString())) {
+            mCC.setError("CC field must contain only digits!");
+            return;
+        }
+
+        if(mEnteredPhone.getText().toString().trim().length() != 10) {
+            mEnteredPhone.setError("Phone field must have 10 digits!");
+            return;
+        }
+
+        if(TextUtils.isEmpty(mCC.getText().toString())) {
+            passPhone = "+91" + mEnteredPhone.getText().toString().trim();
+        } else {
+            passPhone = "+" + mCC.getText().toString().trim() + mEnteredPhone.getText().toString().trim();
+        }
+
+        Intent phone = new Intent(this, VerifyPhone.class);
+        phone.putExtra("phone", passPhone);
+        startActivity(phone);
+
     }
 }

@@ -53,8 +53,9 @@ public class Register extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_register);
+
+        // INITIALIZING ALL COMPONENTS
 
         mFullName = findViewById(R.id.personName);
         mEmail = findViewById(R.id.personEmail);
@@ -65,8 +66,9 @@ public class Register extends AppCompatActivity {
         mProfession = findViewById(R.id.personProfession);
         mCC = findViewById(R.id.CC);
         progressBar = findViewById(R.id.progressBar);
-
         firebaseAuth = FirebaseAuth.getInstance();
+
+        // FUNCTIONALITY OF SIGN UP BUTTON
 
         mRegisterBtn.setOnClickListener(new View.OnClickListener() {
             @Override

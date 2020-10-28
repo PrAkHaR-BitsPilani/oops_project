@@ -5,12 +5,12 @@
     android:id="@+id/loginButtonOTP"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/register"
+    android:background="@color/design_default_color_surface"
     tools:context=".LoginWithPhone">
 
 
     <EditText
-        android:id="@+id/loginPhone"
+        android:id="@+id/buttonLoginPhone"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -20,7 +20,7 @@
         android:hint="Phone"
         android:inputType="phone"
         android:maxLength="10"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/design_default_color_on_surface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/loginCC"
@@ -35,21 +35,21 @@
         android:ems="10"
         android:hint="+91"
         android:inputType="phone"
+        android:textColor="@color/design_default_color_on_surface"
         android:maxLength="3"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView42" />
 
     <Button
         android:id="@+id/requestOtpBtn"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
-        android:layout_marginEnd="32dp"
+        android:backgroundTint="@color/design_default_color_primary"
         android:onClick="requestOTP"
         android:text="Request OTP"
+        android:textColor="@color/design_default_color_on_primary"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button3" />
 
@@ -67,7 +67,7 @@
         android:textColor="#FFFFFF"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/loginPhone" />
+        app:layout_constraintTop_toBottomOf="@+id/buttonLoginPhone" />
 
     <EditText
         android:id="@+id/optNumberTwo2"
@@ -174,9 +174,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
-        android:fontFamily="sans-serif-black"
         android:text="Login using phone number\n   (Verified numbers only)"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/design_default_color_on_surface"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.534"

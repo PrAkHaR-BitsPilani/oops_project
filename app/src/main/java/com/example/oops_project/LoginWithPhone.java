@@ -14,15 +14,12 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.concurrent.TimeUnit;
 
@@ -143,7 +140,7 @@ public class LoginWithPhone extends AppCompatActivity {
 
     public void requestOTP(View view) {
         mCC = findViewById(R.id.loginCC);
-        mPhone = findViewById(R.id.loginPhone);
+        mPhone = findViewById(R.id.buttonLoginPhone);
 
         if(TextUtils.isEmpty(mPhone.getText().toString())) {
             mPhone.setError("Phone field cannot be empty!");

@@ -1,5 +1,6 @@
 package com.example.oops_project;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -23,23 +24,87 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 
 public class frag_account extends Fragment{
 
-
     ImageView profileImage;
     TextView name , email , phone;
-    EditText cc2 , profilePhone;
     Button verifyLogin;
+    EditText mCC, mEnteredPhone;
+    private frag_account_events listener;
+    FirebaseAuth firebaseAuth;
+    FirebaseFirestore firebaseFirestore;
+    Context context;
+
+    public frag_account(Context context) {
+        this.context = context;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_account , container , false);
+
         profileImage = view.findViewById(R.id.profile_photo);
         name = view.findViewById(R.id.profileName);
         email = view.findViewById(R.id.profileEmail);
         phone = view.findViewById(R.id.profilePhone);
-        cc2 = view.findViewById(R.id.CC2);
-        profilePhone = view.findViewById(R.id.personPhone2);
+        mCC = view.findViewById(R.id.CC2);
+        mEnteredPhone = view.findViewById(R.id.personPhone2);
         verifyLogin = view.findViewById(R.id.phoneVerify);
+
+        verifyLogin.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                listener.verifyBtnClicked();
+            }
+        });
+
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        firebaseAuth = FirebaseAuth.getInstance();
+
+        if (firebaseAuth != null && firebaseFirestore != null) {
+            final DocumentReference documentReference = firebaseFirestore.collection("users").document(firebaseAuth.getCurrentUser().getUid());
+
+            documentReference.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                    if (value != null) {
+                        name = view.findViewById(R.id.profileName);
+                        email = view.findViewById(R.id.profileEmail);
+                        phone = view.findViewById(R.id.profilePhone);
+
+                        name.setText(value.getString("name"));
+                        email.setText(value.getString("email"));
+                        phone.setText(value.getString("phone"));
+                    }
+                }
+            });
+        }
+
+
+        // gets user number
+        String n = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
+
+        // checks if it is valid
+        if(n != null && !TextUtils.isEmpty(n) && !TextUtils.isDigitsOnly(n)) {
+
+            // sets them to invisible
+            mCC.setVisibility(View.GONE); // View.INVISIBLE
+            mEnteredPhone.setVisibility(View.GONE); // View.INVISIBLE
+            verifyLogin.setVisibility(View.GONE); // View.INVISIBLE
+        }
         return view;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if(context instanceof frag_account_events)
+            listener = (frag_account_events) context;
+        else
+            throw new ClassCastException(context.toString() + " must implement frag_account_events");
+    }
+
+    public interface frag_account_events {
+        public void verifyBtnClicked();
     }
 
 }
