@@ -60,7 +60,11 @@ public class frag_account extends Fragment{
         firebaseFirestore = FirebaseFirestore.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
 
+        // gets user number
+        String n = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
+
         if (firebaseAuth != null && firebaseFirestore != null) {
+
             final DocumentReference documentReference = firebaseFirestore.collection("users").document(firebaseAuth.getCurrentUser().getUid());
 
             documentReference.addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -73,23 +77,23 @@ public class frag_account extends Fragment{
 
                         name.setText(value.getString("name"));
                         email.setText(value.getString("email"));
-                        phone.setText(value.getString("phone"));
+                        if (n != null && !TextUtils.isEmpty(n) && !TextUtils.isDigitsOnly(n)) {
+                            phone.setText(value.getString("phone"));
+                        } else {
+                            phone.setText(value.getString("phone") + "(unverified)");
+                        }
                     }
                 }
             });
         }
 
-
-        // gets user number
-        String n = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
-
         // checks if it is valid
         if(n != null && !TextUtils.isEmpty(n) && !TextUtils.isDigitsOnly(n)) {
 
             // sets them to invisible
-            mCC.setVisibility(View.GONE); // View.INVISIBLE
-            mEnteredPhone.setVisibility(View.GONE); // View.INVISIBLE
-            verifyLogin.setVisibility(View.GONE); // View.INVISIBLE
+            mCC.setVisibility(View.GONE);
+            mEnteredPhone.setVisibility(View.GONE);
+            verifyLogin.setVisibility(View.GONE);
         }
         return view;
     }
