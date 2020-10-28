@@ -56,6 +56,7 @@ public class Dashboard extends AppCompatActivity implements
 
         drawer = findViewById(R.id.drawer);
         toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle(R.string.dashboard_page);
         toolbar.setTitleTextColor(getResources().getColor(R.color.white));
         navigationView = findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
