@@ -31,11 +31,6 @@ public class frag_account extends Fragment{
     private frag_account_events listener;
     FirebaseAuth firebaseAuth;
     FirebaseFirestore firebaseFirestore;
-    Context context;
-
-    public frag_account(Context context) {
-        this.context = context;
-    }
 
     @Nullable
     @Override

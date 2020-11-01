@@ -35,6 +35,7 @@ public class Dashboard extends AppCompatActivity implements
 {
 
     private FloatingActionButton add_button;
+
     private DrawerLayout drawer;
     private ActionBarDrawerToggle toggler;
     private Toolbar toolbar;
@@ -87,7 +88,7 @@ public class Dashboard extends AppCompatActivity implements
         add_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(Dashboard.this, "adding", Toast.LENGTH_SHORT).show();
+                add_category();
             }
         });
 
@@ -135,7 +136,7 @@ public class Dashboard extends AppCompatActivity implements
                 add_button.hide();
                 frag_manager = getSupportFragmentManager();
                 frag_trans = frag_manager.beginTransaction();
-                frag_trans.replace(R.id.container_fragment , new frag_account(this));
+                frag_trans.replace(R.id.container_fragment , new frag_account());
                 frag_trans.commitNow();
                 break;
 
@@ -179,6 +180,7 @@ public class Dashboard extends AppCompatActivity implements
     }
 
     public void onBackPressed() {
+
         if (doubleBackToExitPressedOnce) {
             Intent a = new Intent(Intent.ACTION_MAIN);
             a.addCategory(Intent.CATEGORY_HOME);
@@ -236,5 +238,10 @@ public class Dashboard extends AppCompatActivity implements
         phone.putExtra("phone", passPhone);
         startActivity(phone);
 
+    }
+
+    public void add_category()
+    {
+        Toast.makeText(Dashboard.this, "adding", Toast.LENGTH_SHORT).show();
     }
 }
