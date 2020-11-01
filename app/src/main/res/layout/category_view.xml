@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/categoryParent"
+    app:cardCornerRadius="7dp"
+    android:elevation="10dp"
+    android:layout_margin="10dp"
+    app:strokeWidth="1dp">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/shortCategory">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:scaleType="fitXY"
+                android:id="@+id/imgCategory"
+                android:layout_centerHorizontal="true"
+                android:src="@mipmap/ic_launcher"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Category Name"
+                android:id="@+id/nameCategory"
+                android:layout_marginTop="10dp"
+                android:textSize="30sp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:layout_below="@id/imgCategory"
+                android:layout_marginLeft="7dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/nameCategory"
+                android:id="@+id/desCategory"
+                android:text="Short Description"
+                android:layout_marginLeft="7dp"
+                android:layout_marginTop="40dp"
+                android:visibility="gone"
+                android:textSize="15sp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/desCategory"
+                android:layout_marginTop="40dp"
+                android:id="@+id/viewMore"
+                android:text="VIEW MORE"
+                style="@style/Widget.MaterialComponents.Button.TextButton"/>
+
+        </RelativeLayout>
+
+
+</com.google.android.material.card.MaterialCardView>
