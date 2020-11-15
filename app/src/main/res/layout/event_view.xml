@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/eventParent"
+    app:cardCornerRadius="7dp"
+    android:elevation="10dp"
+    android:layout_margin="10dp"
+    app:strokeWidth="1dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/shortEvent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Event Name"
+            android:id="@+id/nameEvent"
+            android:layout_marginTop="10dp"
+            android:textSize="25sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:layout_marginLeft="7dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/nameEvent"
+            android:text="Description"
+            android:id="@+id/desEvent"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="7dp"
+            android:textSize="20sp"
+            android:layout_marginBottom="10dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/venueEvent"
+            android:layout_below="@id/desEvent"
+            android:text="20/11/2020\n8:30 AM"
+            android:layout_marginLeft="7dp"
+            android:layout_marginBottom="10dp"
+            android:visibility="gone"/>
+
+    </RelativeLayout>
+
+
+</com.google.android.material.card.MaterialCardView>
