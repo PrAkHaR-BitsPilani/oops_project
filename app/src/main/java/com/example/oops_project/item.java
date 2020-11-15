@@ -54,4 +54,11 @@ public class item {
     public String getImgURI() {
         return imgURI;
     }
+
+    @Override
+    public String toString()
+    {
+        String s = "\n" + id + "\n" + name + "\n" + price + "\n" + quantity + "\n" + imgURI;
+        return s;
+    }
 }

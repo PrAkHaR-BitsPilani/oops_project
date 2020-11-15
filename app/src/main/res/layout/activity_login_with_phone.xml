@@ -64,7 +64,7 @@
         android:inputType="number"
         android:maxLength="1"
         android:textAlignment="center"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/black"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/buttonLoginPhone" />
@@ -78,7 +78,7 @@
         android:inputType="number"
         android:maxLength="1"
         android:textAlignment="center"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/black"
         android:visibility="gone"
         app:layout_constraintBaseline_toBaselineOf="@+id/otpNumberOne2"
         app:layout_constraintStart_toEndOf="@+id/otpNumberOne2" />
@@ -92,7 +92,7 @@
         android:inputType="number"
         android:maxLength="1"
         android:textAlignment="center"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/black"
         android:visibility="gone"
         app:layout_constraintBaseline_toBaselineOf="@+id/optNumberTwo2"
         app:layout_constraintStart_toEndOf="@+id/optNumberTwo2" />
@@ -106,7 +106,7 @@
         android:inputType="number"
         android:maxLength="1"
         android:textAlignment="center"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/black"
         android:visibility="gone"
         app:layout_constraintBaseline_toBaselineOf="@+id/otpNumberThree2"
         app:layout_constraintStart_toEndOf="@+id/otpNumberThree2" />
@@ -120,7 +120,7 @@
         android:inputType="number"
         android:maxLength="1"
         android:textAlignment="center"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/black"
         android:visibility="gone"
         app:layout_constraintBaseline_toBaselineOf="@+id/otpNumberFour2"
         app:layout_constraintStart_toEndOf="@+id/otpNumberFour2" />
@@ -134,7 +134,7 @@
         android:inputType="number"
         android:maxLength="1"
         android:textAlignment="center"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/black"
         android:visibility="gone"
         app:layout_constraintBaseline_toBaselineOf="@+id/otpNumberFive2"
         app:layout_constraintStart_toEndOf="@+id/otpNumberFive2" />
@@ -146,7 +146,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="32dp"
         android:text="You can request a new OTP after 30 seconds"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

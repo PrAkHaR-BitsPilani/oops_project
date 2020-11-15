@@ -48,7 +48,7 @@ public class categoryRecViewAdapter extends RecyclerView.Adapter<categoryRecView
             @Override
             public void onClick(View v) {
                 //Toast.makeText(mContext, categories.get(position).getName(), Toast.LENGTH_SHORT).show();
-                fragmentManager.beginTransaction().replace(R.id.container_fragment, new frag_item()).commit();
+                fragmentManager.beginTransaction().replace(R.id.container_fragment, new frag_item(categories.get(position).getItems())).commit();
             }
         });
         holder.desCategory.setText(categories.get(position).getShortDes());
