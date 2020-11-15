@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/itemParent"
+    app:cardCornerRadius="7dp"
+    android:elevation="10dp"
+    android:layout_margin="10dp"
+    app:strokeWidth="1dp">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/shortItem">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Item Name"
+            android:id="@+id/nameItem"
+            android:layout_marginTop="10dp"
+            android:textSize="30sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:layout_marginLeft="7dp"/>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="fitXY"
+            android:layout_below="@id/nameItem"
+            android:id="@+id/imgItem"
+            android:layout_marginTop="10dp"
+            android:layout_centerHorizontal="true"
+            android:src="@mipmap/ic_launcher"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/imgItem"
+            android:id="@+id/quantityItem"
+            android:text="Quantity"
+            android:layout_marginLeft="7dp"
+            android:layout_marginTop="20dp"
+            android:textSize="15sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/quantityItem"
+            android:id="@+id/priceItem"
+            android:text="Price"
+            android:layout_marginLeft="7dp"
+            android:layout_marginTop="20dp"
+            android:textSize="15sp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/incItem"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/priceItem"
+            android:layout_marginTop="20dp"
+            app:icon="@drawable/ic_add" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/decItem"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_marginLeft="7dp"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/incItem"
+            android:layout_below="@id/priceItem"
+            android:layout_marginTop="20dp"
+            app:icon="@drawable/ic_minus" />
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_margin="20dp"
+            android:id="@+id/shareItem"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/imgItem"
+            app:icon="@drawable/ic_share" />
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_edit"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_below="@id/shareItem"
+            android:layout_alignParentRight="true"/>
+
+    </RelativeLayout>
+
+
+</com.google.android.material.card.MaterialCardView>

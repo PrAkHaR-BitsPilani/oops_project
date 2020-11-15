@@ -13,27 +13,26 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-public class frag_events extends Fragment {
+public class frag_item extends Fragment {
 
-    private RecyclerView eventRecView;
-    private eventRecViewAdapter adapter;
-    private ArrayList<event> events;
+    private RecyclerView itemRecView;
+    private itemRecViewAdapter adapter;
+    ArrayList<item>items = new ArrayList<>();
 
-    public frag_events(ArrayList<event> events) {
-        this.events = events;
+    public frag_item(ArrayList<item> items) {
+        this.items = items;
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_events , container , false);
-        adapter = new eventRecViewAdapter(getActivity());
-        eventRecView = view.findViewById(R.id.eventsRecView);
-        eventRecView.setAdapter(adapter);
-        eventRecView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-        adapter.setEvents(events);
-
+        View view = inflater.inflate(R.layout.fragment_items , container , false);
+        itemRecView = view.findViewById(R.id.itemRecView);
+        adapter = new itemRecViewAdapter(getActivity());
+        itemRecView.setAdapter(adapter);
+        itemRecView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        adapter.setItems(items);
         return view;
     }
+
 }
