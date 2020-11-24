@@ -7,6 +7,18 @@
     android:background="@color/design_default_color_surface"
     tools:context=".Register">
 
+    <LinearLayout
+        android:id="@+id/greyScreenRegister"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#B0000000"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/registerHeading"
         android:layout_width="wrap_content"
@@ -139,7 +151,7 @@
         android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
         android:ems="10"
-        android:hint="Profession (Optional)"
+        android:hint="Profession"
         android:inputType="textPersonName"
         android:textColor="@color/design_default_color_on_surface"
         app:layout_constraintEnd_toEndOf="parent"
@@ -154,9 +166,9 @@
         android:layout_marginTop="32dp"
         android:ems="10"
         android:hint="+91"
-        android:textColor="@color/design_default_color_on_surface"
         android:inputType="phone"
         android:maxLength="3"
+        android:textColor="@color/design_default_color_on_surface"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/personEmail" />
 

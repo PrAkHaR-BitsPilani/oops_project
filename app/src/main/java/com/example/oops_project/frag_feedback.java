@@ -14,7 +14,7 @@ public class frag_feedback extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_feedback , container , false);
+        View view = inflater.inflate(R.layout.fragment_feedback, container, false);
         return view;
     }
 }

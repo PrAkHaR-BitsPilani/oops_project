@@ -6,8 +6,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,9 +30,10 @@ import com.google.firebase.auth.FirebaseUser;
 public class Login extends AppCompatActivity {
 
     EditText loginEmail, loginPassword;
-    Button loginBtn;
+    Button loginBtn, loginPhoneBtn;
     TextView mRegisterBtn, mForgotPassword;
     ProgressBar progressBar;
+    LinearLayout greyScreen;
 
     FirebaseAuth firebaseAuth;
     boolean doubleBackToExitPressedOnce = false;
@@ -49,10 +52,12 @@ public class Login extends AppCompatActivity {
         mRegisterBtn = findViewById(R.id.notMember);
         mForgotPassword = findViewById(R.id.forgotPassword);
         firebaseAuth = FirebaseAuth.getInstance();
+        greyScreen = findViewById(R.id.greyScreenLogin);
+        loginPhoneBtn = findViewById(R.id.buttonLoginPhone);
 
         //GO TO DASHBOARD IF USER HASN'T LOGGED OUT
 
-        if(firebaseAuth.getCurrentUser() != null) {
+        if (firebaseAuth.getCurrentUser() != null) {
             if (firebaseAuth.getCurrentUser().getEmail() != null) {
                 startActivity(new Intent(getApplicationContext(), Dashboard.class));
             }
@@ -66,42 +71,52 @@ public class Login extends AppCompatActivity {
                 String email = loginEmail.getText().toString().trim();
                 String password = loginPassword.getText().toString().trim();
 
-                if(TextUtils.isEmpty(email)) {
+                if (TextUtils.isEmpty(email)) {
                     loginEmail.setError("E-mail field cannot be empty!");
                     return;
                 }
 
-                if(!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")) {
+                if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")) {
                     loginEmail.setError("E-mail is badly formatted!");
                     return;
                 }
 
-                if(TextUtils.isEmpty(password)) {
+                if (TextUtils.isEmpty(password)) {
                     loginPassword.setError("Password field cannot be empty!");
                     return;
                 }
 
-                if(password.length() < 8) {
+                if (password.length() < 8) {
                     loginPassword.setError("Password must have 8 or more characters!");
                     return;
                 }
 
                 progressBar.setVisibility(View.VISIBLE);
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                greyScreen.setVisibility(View.VISIBLE);
+                loginBtn.setAlpha(0.3f);
+                loginPhoneBtn.setAlpha(0.3f);
 
                 firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()) {
+                        if (task.isSuccessful()) {
                             FirebaseUser user = firebaseAuth.getCurrentUser();
 
-                            if(user.isEmailVerified()) {
+                            if (user.isEmailVerified()) {
                                 Toast.makeText(Login.this, "Account login successful!", Toast.LENGTH_SHORT).show();
                                 progressBar.setVisibility(View.INVISIBLE);
+                                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                                greyScreen.setVisibility(View.GONE);
+                                loginBtn.setAlpha(1f);
+                                loginPhoneBtn.setAlpha(1f);
 
                                 startActivity(new Intent(getApplicationContext(), Dashboard.class));
 
                             } else {
                                 progressBar.setVisibility(View.INVISIBLE);
+                                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                                 AlertDialog.Builder resendEmailDialog = new AlertDialog.Builder(Login.this);
                                 resendEmailDialog.setTitle("E-mail account is not verified!");
                                 resendEmailDialog.setMessage(("Do you want to re-send verification e-mail?"));
@@ -133,13 +148,20 @@ public class Login extends AppCompatActivity {
                                 });
 
                                 resendEmailDialog.create().show();
-                                if(!resendEmailDialog.create().isShowing()) {
+                                if (!resendEmailDialog.create().isShowing()) {
                                     FirebaseAuth.getInstance().signOut();
+                                    greyScreen.setVisibility(View.GONE);
+                                    loginBtn.setAlpha(1f);
+                                    loginPhoneBtn.setAlpha(1f);
                                 }
                             }
 
                         } else {
                             progressBar.setVisibility(View.INVISIBLE);
+                            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                            greyScreen.setVisibility(View.GONE);
+                            loginBtn.setAlpha(1f);
+                            loginPhoneBtn.setAlpha(1f);
                             Toast.makeText(Login.this, "Error! : " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                         }
                     }
@@ -164,15 +186,14 @@ public class Login extends AppCompatActivity {
                 EditText resetMail = new EditText(v.getContext());
                 AlertDialog.Builder passwordResetDialog = new AlertDialog.Builder(v.getContext());
                 passwordResetDialog.setTitle("Reset Password?");
-                passwordResetDialog.setMessage(("Enter you registered E-mail to receive a reset link"));
-                passwordResetDialog.setView(resetMail);
-                passwordResetDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                passwordResetDialog.setMessage(("Enter you registered e-mail to receive a reset link: "));
+                passwordResetDialog.setView(resetMail, 55, 0, 55, 0);
+                passwordResetDialog.setPositiveButton("Send", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String email = resetMail.getText().toString().trim();
-
-                        if(TextUtils.isEmpty(email)) {
-                            Toast.makeText(Login.this,  "E-mail field cannot be empty!", Toast.LENGTH_LONG).show();
+                        if (TextUtils.isEmpty(email)) {
+                            Toast.makeText(Login.this, "E-mail field cannot be empty!", Toast.LENGTH_LONG).show();
                             return;
                         }
 
@@ -191,7 +212,7 @@ public class Login extends AppCompatActivity {
                     }
                 });
 
-                passwordResetDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                passwordResetDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -227,7 +248,7 @@ public class Login extends AppCompatActivity {
 
             @Override
             public void run() {
-                doubleBackToExitPressedOnce=false;
+                doubleBackToExitPressedOnce = false;
             }
         }, 2000);
     }

@@ -3,15 +3,16 @@ package com.example.oops_project;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -31,19 +32,17 @@ public class VerifyPhone extends AppCompatActivity {
     Button verifyPhone, resendOTP;
     Boolean otpValid = true;
     TextView textView3;
+    LinearLayout greyScreen;
+    ProgressBar progressBar;
 
     FirebaseAuth firebaseAuth;
 
-    PhoneAuthCredential phoneAuthCredential;
     PhoneAuthProvider.ForceResendingToken token;
     PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
 
     String verificationId;
     String phone;
     String userID;
-
-    private FragmentManager frag_manager;
-    private FragmentTransaction frag_trans;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +53,6 @@ public class VerifyPhone extends AppCompatActivity {
         phone = data.getStringExtra("phone");
 
         firebaseAuth = FirebaseAuth.getInstance();
-        FirebaseFirestore firebaseFirestore;
 
         otpNumberOne = findViewById(R.id.otpNumberOne);
         otpNumberTwo = findViewById(R.id.optNumberTwo);
@@ -66,7 +64,24 @@ public class VerifyPhone extends AppCompatActivity {
         verifyPhone = findViewById(R.id.verifyPhoneBTn);
         resendOTP = findViewById(R.id.resendOTP);
 
-        textView3 =  findViewById(R.id.textView3);
+        textView3 = findViewById(R.id.textView3);
+        greyScreen = findViewById(R.id.greyScreenVerifyPhone);
+        progressBar = findViewById(R.id.progressBarVerifyPhone);
+
+        greyScreen.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
+        verifyPhone.setAlpha(0.3f);
+        resendOTP.setAlpha(0.3f);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+        EditText[] otpArray = {otpNumberOne, otpNumberTwo, otpNumberThree, otpNumberFour, otpNumberFive, otpNumberSix};
+        otpNumberOne.addTextChangedListener(new GenericTextWatcher(otpNumberOne, otpArray));
+        otpNumberTwo.addTextChangedListener(new GenericTextWatcher(otpNumberTwo, otpArray));
+        otpNumberThree.addTextChangedListener(new GenericTextWatcher(otpNumberThree, otpArray));
+        otpNumberFour.addTextChangedListener(new GenericTextWatcher(otpNumberFour, otpArray));
+        otpNumberFive.addTextChangedListener(new GenericTextWatcher(otpNumberFive, otpArray));
+        otpNumberSix.addTextChangedListener(new GenericTextWatcher(otpNumberSix, otpArray));
 
         verifyPhone.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,12 +93,19 @@ public class VerifyPhone extends AppCompatActivity {
                 validateField(otpNumberFive);
                 validateField(otpNumberSix);
 
-                if(otpValid){
+                if (otpValid) {
 
-                    String otp = otpNumberOne.getText().toString()+otpNumberTwo.getText().toString()+otpNumberThree.getText().toString()+otpNumberFour.getText().toString()+
-                            otpNumberFive.getText().toString()+otpNumberSix.getText().toString();
+                    String otp = otpNumberOne.getText().toString() + otpNumberTwo.getText().toString() + otpNumberThree.getText().toString() + otpNumberFour.getText().toString() +
+                            otpNumberFive.getText().toString() + otpNumberSix.getText().toString();
 
                     PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, otp);
+
+                    greyScreen.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.VISIBLE);
+                    verifyPhone.setAlpha(0.3f);
+                    resendOTP.setAlpha(0.3f);
+                    getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
                     verifyAuthentication(credential);
 
@@ -100,6 +122,11 @@ public class VerifyPhone extends AppCompatActivity {
                 verificationId = s;
                 token = forceResendingToken;
                 resendOTP.setVisibility(View.GONE);
+                greyScreen.setVisibility(View.GONE);
+                progressBar.setVisibility(View.GONE);
+                verifyPhone.setAlpha(1f);
+                resendOTP.setAlpha(1f);
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                 Toast.makeText(getApplicationContext(), "OTP has been sent!", Toast.LENGTH_LONG).show();
             }
 
@@ -113,6 +140,12 @@ public class VerifyPhone extends AppCompatActivity {
 
             @Override
             public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
+                greyScreen.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.VISIBLE);
+                verifyPhone.setAlpha(0.3f);
+                resendOTP.setAlpha(0.3f);
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                 verifyAuthentication(phoneAuthCredential);
                 resendOTP.setVisibility(View.GONE);
             }
@@ -120,7 +153,7 @@ public class VerifyPhone extends AppCompatActivity {
             @Override
             public void onVerificationFailed(@NonNull FirebaseException e) {
                 Toast.makeText(VerifyPhone.this, "OTP verification failed! : " + e.getMessage(), Toast.LENGTH_LONG).show();
-                startActivity(new Intent(getApplicationContext(), Dashboard.class ));
+                startActivity(new Intent(getApplicationContext(), Dashboard.class));
             }
         };
 
@@ -136,24 +169,37 @@ public class VerifyPhone extends AppCompatActivity {
 
     }
 
-    public void sendOTP(String phoneNumber){
-        PhoneAuthProvider.getInstance().verifyPhoneNumber(phoneNumber,30, TimeUnit.SECONDS, this, mCallbacks);
+    public void sendOTP(String phoneNumber) {
+        PhoneAuthProvider.getInstance().verifyPhoneNumber(phoneNumber, 30, TimeUnit.SECONDS, this, mCallbacks);
     }
 
-    public void resendOTP(String phoneNumber){
-        PhoneAuthProvider.getInstance().verifyPhoneNumber(phoneNumber,30, TimeUnit.SECONDS,this, mCallbacks, token);
+    public void resendOTP(String phoneNumber) {
+        PhoneAuthProvider.getInstance().verifyPhoneNumber(phoneNumber, 30, TimeUnit.SECONDS, this, mCallbacks, token);
+
+        greyScreen.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
+        verifyPhone.setAlpha(0.3f);
+        resendOTP.setAlpha(0.3f);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
 
-    public void validateField(EditText field){
-        if(field.getText().toString().isEmpty()){
+    public void validateField(EditText field) {
+        if (field.getText().toString().isEmpty()) {
             field.setError("Required!");
             otpValid = false;
-        }else {
+        } else {
             otpValid = true;
         }
     }
 
-    public void verifyAuthentication(PhoneAuthCredential credential){
+    public void verifyAuthentication(PhoneAuthCredential credential) {
+        greyScreen.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
+        verifyPhone.setAlpha(0.3f);
+        resendOTP.setAlpha(0.3f);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         firebaseAuth.getCurrentUser().linkWithCredential(credential).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
             @Override
             public void onSuccess(AuthResult authResult) {
@@ -165,13 +211,14 @@ public class VerifyPhone extends AppCompatActivity {
 
                 documentReference.update("phone", FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
 
-                startActivity(new Intent(getApplicationContext(), Dashboard.class ));
+                startActivity(new Intent(getApplicationContext(), Dashboard.class));
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(VerifyPhone.this, "Error! : " + e.getMessage(), Toast.LENGTH_LONG).show();
-                startActivity(new Intent(getApplicationContext(), Dashboard.class ));
+
+                startActivity(new Intent(getApplicationContext(), Dashboard.class));
             }
         });
     }

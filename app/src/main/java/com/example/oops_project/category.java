@@ -27,44 +27,44 @@ public class category {
         isExpanded = expanded;
     }
 
-    public void setItems(ArrayList<item> items) {
-        this.items = items;
+    public int getId() {
+        return id;
     }
 
     public void setId(int id) {
         this.id = id;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setShortDes(String shortDes) {
-        this.shortDes = shortDes;
-    }
-
-    public void setImageURL(String imageURL) {
-        this.imageURL = imageURL;
-    }
-
-    public int getId() {
-        return id;
-    }
-
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getShortDes() {
         return shortDes;
     }
 
+    public void setShortDes(String shortDes) {
+        this.shortDes = shortDes;
+    }
+
     public String getImageURL() {
         return imageURL;
     }
 
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
+    }
+
     public ArrayList<item> getItems() {
         return items;
+    }
+
+    public void setItems(ArrayList<item> items) {
+        this.items = items;
     }
 
     @Override
@@ -75,7 +75,7 @@ public class category {
                 "\n" + shortDes +
                 "\n" + imageURL +
                 "\n" + items.size();
-        for(item e : items)
+        for (item e : items)
             s = s + e.toString();
         s = s + "\n]\n";
         return s;

@@ -5,11 +5,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.transition.TransitionManager;
 
 import com.google.android.material.card.MaterialCardView;
 
@@ -27,24 +25,32 @@ public class eventRecViewAdapter extends RecyclerView.Adapter<eventRecViewAdapte
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.event_view,parent,false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.event_view, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            holder.nameEvent.setText(events.get(position).getName());
-            holder.desEvent.setText(events.get(position).getDescription());
-            holder.cardEvent.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //TransitionManager.beginDelayedTransition((holder.cardEvent));
-                    if(holder.venueEvent.getVisibility() == View.GONE)
-                        holder.venueEvent.setVisibility(View.VISIBLE);
-                    else
-                        holder.venueEvent.setVisibility(View.GONE);
-                }
-            });
+        holder.nameEvent.setText(events.get(position).getName());
+        holder.desEvent.setText(events.get(position).getDescription());
+        holder.cardEvent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TransitionManager.beginDelayedTransition((holder.cardEvent));
+                if (holder.venueEvent.getVisibility() == View.GONE)
+                    holder.venueEvent.setVisibility(View.VISIBLE);
+                else
+                    holder.venueEvent.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    public void delete(int pos) {
+
+    }
+
+    public void add(int pos) {
+
     }
 
     @Override
@@ -57,8 +63,7 @@ public class eventRecViewAdapter extends RecyclerView.Adapter<eventRecViewAdapte
         notifyDataSetChanged();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder
-    {
+    public class ViewHolder extends RecyclerView.ViewHolder {
         private TextView nameEvent, desEvent, venueEvent;
         private MaterialCardView cardEvent;
 

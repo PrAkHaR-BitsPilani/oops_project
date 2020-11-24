@@ -1,50 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/eventParent"
-    app:cardCornerRadius="7dp"
-    android:elevation="10dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:layout_margin="10dp"
+    android:elevation="10dp"
+    app:cardCornerRadius="7dp"
+    app:cardElevation="10dp"
     app:strokeWidth="1dp">
 
     <RelativeLayout
+        android:id="@+id/shortEvent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/shortEvent">
+        android:layout_height="match_parent">
 
         <TextView
+            android:id="@+id/nameEvent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Event Name"
-            android:id="@+id/nameEvent"
+            android:layout_marginLeft="7dp"
             android:layout_marginTop="10dp"
-            android:textSize="25sp"
+            android:text="Event Name"
             android:textColor="@color/black"
-            android:textStyle="bold"
-            android:layout_marginLeft="7dp"/>
+            android:textSize="25sp"
+            android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/desEvent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/nameEvent"
-            android:text="Description"
-            android:id="@+id/desEvent"
-            android:layout_marginTop="20dp"
             android:layout_marginLeft="7dp"
-            android:textSize="20sp"
-            android:layout_marginBottom="10dp"/>
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="10dp"
+            android:text="Description"
+            android:textSize="20sp" />
 
         <TextView
+            android:id="@+id/venueEvent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/venueEvent"
             android:layout_below="@id/desEvent"
-            android:text="20/11/2020\n8:30 AM"
             android:layout_marginLeft="7dp"
             android:layout_marginBottom="10dp"
-            android:visibility="gone"/>
+            android:text="20/11/2020\n8:30 AM"
+            android:visibility="gone" />
 
     </RelativeLayout>
 

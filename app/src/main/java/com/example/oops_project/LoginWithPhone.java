@@ -1,16 +1,19 @@
 package com.example.oops_project;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -30,16 +33,16 @@ public class LoginWithPhone extends AppCompatActivity {
     Button requestOTP, resendOTP, loginButton;
     TextView canResend, textView42;
     Boolean otpValid = true;
+    LinearLayout greyScreen;
+    ProgressBar progressBar;
 
     FirebaseAuth firebaseAuth;
 
-    PhoneAuthCredential phoneAuthCredential;
     PhoneAuthProvider.ForceResendingToken token;
     PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
 
     String verificationId;
     String phone;
-    String userID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +63,16 @@ public class LoginWithPhone extends AppCompatActivity {
         loginButton = findViewById(R.id.button3);
         canResend = findViewById(R.id.textView32);
         textView42 = findViewById(R.id.textView42);
+        greyScreen = findViewById(R.id.greyScreenLoginWithPhone);
+        progressBar = findViewById(R.id.progressBarLoginWithPhone);
+
+        EditText[] otpArray = {otpNumberOne, otpNumberTwo, otpNumberThree, otpNumberFour, otpNumberFive, otpNumberSix};
+        otpNumberOne.addTextChangedListener(new GenericTextWatcher(otpNumberOne, otpArray));
+        otpNumberTwo.addTextChangedListener(new GenericTextWatcher(otpNumberTwo, otpArray));
+        otpNumberThree.addTextChangedListener(new GenericTextWatcher(otpNumberThree, otpArray));
+        otpNumberFour.addTextChangedListener(new GenericTextWatcher(otpNumberFour, otpArray));
+        otpNumberFive.addTextChangedListener(new GenericTextWatcher(otpNumberFive, otpArray));
+        otpNumberSix.addTextChangedListener(new GenericTextWatcher(otpNumberSix, otpArray));
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,12 +84,19 @@ public class LoginWithPhone extends AppCompatActivity {
                 validateField(otpNumberFive);
                 validateField(otpNumberSix);
 
-                if(otpValid){
+                if (otpValid) {
 
-                    String otp = otpNumberOne.getText().toString()+otpNumberTwo.getText().toString()+otpNumberThree.getText().toString()+otpNumberFour.getText().toString()+
-                            otpNumberFive.getText().toString()+otpNumberSix.getText().toString();
+                    String otp = otpNumberOne.getText().toString() + otpNumberTwo.getText().toString() + otpNumberThree.getText().toString() + otpNumberFour.getText().toString() +
+                            otpNumberFive.getText().toString() + otpNumberSix.getText().toString();
 
                     PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, otp);
+
+                    greyScreen.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.VISIBLE);
+                    loginButton.setAlpha(0.3f);
+                    resendOTP.setAlpha(0.3f);
+                    getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
                     loginAuthentication(credential);
 
@@ -105,6 +125,13 @@ public class LoginWithPhone extends AppCompatActivity {
                 mCC.setVisibility(View.GONE);
                 mPhone.setVisibility(View.GONE);
                 textView42.setText("Enter the OTP");
+
+                greyScreen.setVisibility(View.GONE);
+                progressBar.setVisibility(View.GONE);
+                requestOTP.setAlpha(1f);
+                resendOTP.setAlpha(1f);
+                loginButton.setAlpha(1f);
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                 Toast.makeText(getApplicationContext(), "OTP has been sent!", Toast.LENGTH_LONG).show();
             }
 
@@ -118,6 +145,12 @@ public class LoginWithPhone extends AppCompatActivity {
 
             @Override
             public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
+                greyScreen.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.VISIBLE);
+                loginButton.setAlpha(0.3f);
+                resendOTP.setAlpha(0.3f);
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                 loginAuthentication(phoneAuthCredential);
                 resendOTP.setVisibility(View.GONE);
             }
@@ -125,7 +158,7 @@ public class LoginWithPhone extends AppCompatActivity {
             @Override
             public void onVerificationFailed(@NonNull FirebaseException e) {
                 Toast.makeText(LoginWithPhone.this, "OTP verification failed! : " + e.getMessage(), Toast.LENGTH_LONG).show();
-                startActivity(new Intent(getApplicationContext(), Login.class ));
+                startActivity(new Intent(getApplicationContext(), Login.class));
             }
         };
 
@@ -142,48 +175,61 @@ public class LoginWithPhone extends AppCompatActivity {
         mCC = findViewById(R.id.loginCC);
         mPhone = findViewById(R.id.buttonLoginPhone);
 
-        if(TextUtils.isEmpty(mPhone.getText().toString())) {
+
+        if (TextUtils.isEmpty(mPhone.getText().toString())) {
             mPhone.setError("Phone field cannot be empty!");
             return;
         }
 
-        if(!TextUtils.isDigitsOnly(mPhone.getText().toString())) {
+        if (!TextUtils.isDigitsOnly(mPhone.getText().toString())) {
             mPhone.setError("Phone field must contain only digits!");
             return;
         }
 
-        if(!TextUtils.isDigitsOnly(mCC.getText().toString())) {
+        if (!TextUtils.isDigitsOnly(mCC.getText().toString())) {
             mCC.setError("CC must contain only digits!");
             return;
         }
 
-        if(mPhone.getText().toString().trim().length() < 10) {
+        if (mPhone.getText().toString().trim().length() < 10) {
             mPhone.setError("Phone field must have 10 digits!");
             return;
         }
 
-        if(TextUtils.isEmpty(mCC.getText().toString())) {
+        if (TextUtils.isEmpty(mCC.getText().toString())) {
             phone = "+91" + mPhone.getText().toString().trim();
         } else {
             phone = "+" + mCC.getText().toString().trim() + mPhone.getText().toString().trim();
         }
+        greyScreen.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
+        requestOTP.setAlpha(0.3f);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         sendOTP(phone);
 
     }
 
-    public void sendOTP(String phoneNumber){
-        PhoneAuthProvider.getInstance().verifyPhoneNumber(phoneNumber,30, TimeUnit.SECONDS, this, mCallbacks);
+    public void sendOTP(String phoneNumber) {
+        PhoneAuthProvider.getInstance().verifyPhoneNumber(phoneNumber, 30, TimeUnit.SECONDS, this, mCallbacks);
     }
 
-    public void resendOTP(String phoneNumber){
-        PhoneAuthProvider.getInstance().verifyPhoneNumber(phoneNumber,30, TimeUnit.SECONDS,this, mCallbacks, token);
+    public void resendOTP(String phoneNumber) {
+        PhoneAuthProvider.getInstance().verifyPhoneNumber(phoneNumber, 30, TimeUnit.SECONDS, this, mCallbacks, token);
+
+        greyScreen.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
+        loginButton.setAlpha(0.3f);
+        resendOTP.setAlpha(0.3f);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
 
-    public void validateField(EditText field){
-        if(field.getText().toString().isEmpty()){
+    public void validateField(EditText field) {
+        if (field.getText().toString().isEmpty()) {
             field.setError("Required!");
             otpValid = false;
-        }else {
+        } else {
             otpValid = true;
         }
     }
@@ -195,12 +241,22 @@ public class LoginWithPhone extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-                    if(TextUtils.isEmpty(email) || email == null) {
+                    if (TextUtils.isEmpty(email) || email == null) {
                         Toast.makeText(getApplicationContext(), "Error! : Phone number is not verified or associated with any user!", Toast.LENGTH_LONG).show();
                         FirebaseAuth.getInstance().getCurrentUser().delete();
+                        greyScreen.setVisibility(View.GONE);
+                        progressBar.setVisibility(View.GONE);
+                        loginButton.setAlpha(1f);
+                        resendOTP.setAlpha(1f);
+                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                         startActivity(new Intent(getApplicationContext(), Login.class));
                     } else {
                         Toast.makeText(getApplicationContext(), "Login through phone successful!", Toast.LENGTH_SHORT).show();
+                        greyScreen.setVisibility(View.GONE);
+                        progressBar.setVisibility(View.GONE);
+                        loginButton.setAlpha(1f);
+                        resendOTP.setAlpha(1f);
+                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                         startActivity(new Intent(getApplicationContext(), Dashboard.class));
                     }
                 }
@@ -209,6 +265,11 @@ public class LoginWithPhone extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getApplicationContext(), "Error! : " + e.getMessage(), Toast.LENGTH_LONG).show();
+                greyScreen.setVisibility(View.GONE);
+                progressBar.setVisibility(View.GONE);
+                loginButton.setAlpha(1f);
+                resendOTP.setAlpha(1f);
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                 startActivity(new Intent(getApplicationContext(), Login.class));
             }
         });

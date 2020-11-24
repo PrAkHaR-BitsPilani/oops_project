@@ -14,8 +14,11 @@ import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,9 +30,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -49,28 +56,28 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class Dashboard extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
         frag_account.frag_account_events {
 
+    private final ArrayList<category> categories = new ArrayList<>();
     String imgPath;
     String path = Environment.getExternalStorageDirectory().getAbsolutePath()
-            + "/Android/data/com.example.oops_project/files/users/" + FirebaseAuth.getInstance().getCurrentUser().getUid();
+            + "/Android/data/com.example.oops_project/files/users/" + Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
     EditText mCC, mEnteredPhone;
     String passPhone;
-    long downloadID, downloadID2;
+    long downloadID, downloadID2, downloadID3;
+    String uID;
+    Toolbar toolbar;
     private FloatingActionButton add_button;
     private DrawerLayout drawer;
-    private ActionBarDrawerToggle toggler;
-    private Toolbar toolbar;
-    private NavigationView navigationView;
     private FragmentManager frag_manager;
     private FragmentTransaction frag_trans;
     private boolean doubleBackToExitPressedOnce = false;
-    private TextView userNameNav;
-    private ImageView profileImageNav;
+    private TextView userNameNav, professionNav;
     private ProgressBar imgUploadProgressBar;
     private final BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
         @Override
@@ -81,72 +88,77 @@ public class Dashboard extends AppCompatActivity implements
             if (downloadID == id) {
                 imgUploadProgressBar = findViewById(R.id.imgProgressBar);
                 imgUploadProgressBar.setVisibility(View.INVISIBLE);
-                profileImageNav.setImageResource(0);
-                profileImageNav.setImageURI(Uri.parse(imgPath));
+
                 Toast.makeText(getApplicationContext(), "Profile picture updated successfully!", Toast.LENGTH_LONG).show();
                 finish();
                 startActivity(getIntent());
-            }
-            else if(downloadID2 == id)
-            {
+            } else if (downloadID3 == id) {
                 Toast.makeText(getApplicationContext(), "Data downloaded successfully!", Toast.LENGTH_LONG).show();
                 finish();
                 startActivity(getIntent());
             }
         }
     };
-    private final ArrayList<category> categories = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dashboard);
 
+        uID = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getUid());
+
         imgPath = Environment.getExternalStorageDirectory().getAbsolutePath()
-                + "/Android/data/com.example.oops_project/files/users/" + FirebaseAuth.getInstance().getCurrentUser().getUid()
+                + "/Android/data/com.example.oops_project/files/users/" + Objects.requireNonNull(uID)
                 + "/profileImg.jpg";
 
         // creating nav drawer
 
         drawer = findViewById(R.id.drawer);
         toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle(R.string.dashboard_page);
+        toolbar.setTitle("Inventory");
         toolbar.setTitleTextColor(getResources().getColor(R.color.white));
-        navigationView = findViewById(R.id.navigation_view);
+        NavigationView navigationView = findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
         setSupportActionBar(toolbar);
-        toggler = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.open, R.string.close);
+        ActionBarDrawerToggle toggler = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.open, R.string.close);
         drawer.addDrawerListener(toggler);
         toggler.setDrawerIndicatorEnabled(true);
         toggler.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.white));
         toggler.syncState();
         View headerView = navigationView.getHeaderView(0);
         userNameNav = headerView.findViewById(R.id.user_name);
-        profileImageNav = headerView.findViewById(R.id.user_image);
+        professionNav = headerView.findViewById(R.id.profession_nav);
+        ImageView profileImageNav = headerView.findViewById(R.id.user_image);
 
         File file = new File(imgPath);
         if (file.exists()) {
-            profileImageNav.setImageURI(Uri.parse(imgPath));
+            Glide.with(getApplicationContext())
+                    .load(imgPath)
+                    .apply(RequestOptions.skipMemoryCacheOf(true))
+                    .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
+                    .into(profileImageNav);
         }
 
         //image download progress checker
         registerReceiver(onDownloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
 
-        final DocumentReference documentReference = FirebaseFirestore.getInstance().collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        final DocumentReference documentReference = FirebaseFirestore.getInstance().collection("users").document(uID);
 
         documentReference.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
 
                 if (value != null) {
-                    userNameNav.setText(value.getString("name"));
-
+                    String name = value.getString("name");
+                    String nm[] = name.split(" ", 2);
+                    name = nm[0];
+                    userNameNav.setText(name);
+                    if (!TextUtils.isEmpty(value.getString("profession"))) {
+                        professionNav.setText(value.getString("profession"));
+                    }
                 }
             }
         });
-        /*Environment.getExternalStorageDirectory().getAbsolutePath()
-                + "/Android/data/com.example.oops_project/files/users/" + FirebaseAuth.getInstance().getCurrentUser().getUid()
-                + "/profileImg.jpg";*/
 
         //creating add button
 
@@ -176,10 +188,8 @@ public class Dashboard extends AppCompatActivity implements
                 while (item_count != 0) {
                     String i_ID = reader.nextLine();
                     String i_name = reader.nextLine();
-                    int i_price = reader.nextInt();
-                    reader.nextLine();
-                    int i_quantity = reader.nextInt();
-                    reader.nextLine();
+                    String i_price = reader.nextLine();
+                    String i_quantity = reader.nextLine();
                     String i_imgURI = reader.nextLine();
                     c_items.add(new item(i_ID, i_name, i_price, i_quantity, i_imgURI));
                     item_count--;
@@ -192,59 +202,16 @@ public class Dashboard extends AppCompatActivity implements
             //Toast.makeText(this, "Data Read", Toast.LENGTH_SHORT).show();
             reader.close();
         } catch (FileNotFoundException e) {
-
-            StorageReference profileRef = FirebaseStorage.getInstance().getReference().child("users/" + FirebaseAuth.getInstance().getCurrentUser().getUid()
-                    + "/myfile.txt");
-
-            profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                @Override
-                public void onSuccess(Uri uri) {
-                    Toast.makeText(Dashboard.this, "Getting your data from the cloud...", Toast.LENGTH_SHORT).show();
-                    downloadFile(uri);
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    // default data
-                    ArrayList<item> items_pantry = new ArrayList<>();
-                    ArrayList<item> items_stationary = new ArrayList<>();
-                    items_pantry.add(new item("0" , "Milk", 24, 5, "https://i0.wp.com/post.healthline.com/wp-content/uploads/2019/11/milk-soy-hemp-almond-non-dairy-1296x728-header-1296x728.jpg?w=1155&h=1528.jpg"));
-                    items_pantry.add(new item("1" , "Potato", 30, 5, "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcTObd35g74rosg3jPC8qxp4vLF_q3f1AFYWvQ&usqp=CAU.jpg"));
-                    items_pantry.add(new item("2", "Ketchup", 120,3 ,"https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQgg8YHhZAhDxvA0lpwqpGkIhN_uxVYr57noA&usqp=CAU.jpg"));
-                    items_pantry.add(new item("3", "Wheat Flour", 350,5 ,"https://media.gettyimages.com/photos/hessian-sack-of-grain-and-wheat-picture-id157580609?k=6&m=157580609&s=612x612&w=0&h=TDEilPMbcnSrV1odVEmfLLo53jSQpPsYFS-jzBBKskk="));
-                    categories.add(new category(0,"Pantry" , "Contains vegetables and other milk products" , "https://static01.nyt.com/images/2020/03/14/dining/23pantry1/23pantry1-superJumbo.jpg" , items_pantry));
-
-                    items_stationary.add(new item("0" , "Pens", 10, 7, "https://media.gettyimages.com/photos/set-of-eight-different-pens-picture-id183057646?k=6&m=183057646&s=612x612&w=0&h=rKO5xoVUmSbMJzpZCyHraDXtZyefVH-N2Na8Ows4rfQ="));
-                    items_stationary.add(new item("1" , "Notebook", 30, 4, "https://media.gettyimages.com/photos/back-to-school-education-textbooks-on-desk-chalkboard-picture-id524537058?k=6&m=524537058&s=612x612&w=0&h=o8b740939h1nmH-PYcvBxUUuIghBxd8Yc5TcU3LrwFk="));
-                    items_stationary.add(new item("2" , "Battery", 25, 10, "https://media.gettyimages.com/photos/batteries-picture-id1131330918?k=6&m=1131330918&s=612x612&w=0&h=DQuGlGxX1rgEPBOuo8JOmPbpHJt7qwhcOWqulXM-zfg="));
-                    categories.add(new category(1,"Stationary" , "Books, pens and other documents" ,  "https://media.gettyimages.com/photos/large-assortment-of-office-supplies-on-white-backdrop-picture-id182060333?k=6&m=182060333&s=612x612&w=0&h=oDNXDX5StoZ_UO4-5UvhKPr1A1OGXADsLus9AbMlG4M=" , items_stationary));
-                    try {
-                        File f = new File(Environment.getExternalStorageDirectory(),
-                                "/Android/data/com.example.oops_project/files/users/" + FirebaseAuth.getInstance().getCurrentUser().getUid() + "/");
-                        f.mkdirs();
-                        FileWriter fw = new FileWriter(new File(path , "myfile.txt"));
-                        fw.write(categories.size() + "\n");
-                        for(category i : categories)
-                        {
-                            fw.write(i.toString());
-                        }
-                        fw.close();
-                        Toast.makeText(Dashboard.this, "Data Written", Toast.LENGTH_SHORT).show();
-                        finish();
-                        startActivity(getIntent());
-                    } catch (IOException e2) {
-                        //Toast.makeText(this, "Data Not Written", Toast.LENGTH_SHORT).show();
-                        e2.printStackTrace();
-                    }
-                }
-            });
+            File f = new File(Environment.getExternalStorageDirectory(),
+                    "/Android/data/com.example.oops_project/files/users/" + uID + "/");
+            f.mkdirs();
 
         }
 
         frag_manager = getSupportFragmentManager();
         frag_trans = frag_manager.beginTransaction();
 
-        frag_trans.add(R.id.container_fragment, new frag_inventory(categories));
+        frag_trans.add(R.id.container_fragment, new frag_inventory(categories, add_button, toolbar));
 
         frag_trans.commit();
 
@@ -258,15 +225,16 @@ public class Dashboard extends AppCompatActivity implements
 
         switch (item.getItemId()) {
             case R.id.inventory_list:
+                toolbar.setTitle("Inventory");
                 add_button.show();
                 frag_manager = getSupportFragmentManager();
                 frag_trans = frag_manager.beginTransaction();
-                frag_trans.replace(R.id.container_fragment, new frag_inventory(categories));
+                frag_trans.replace(R.id.container_fragment, new frag_inventory(categories, add_button, toolbar));
                 frag_trans.commit();
                 break;
 
             case R.id.events_list:
-
+                toolbar.setTitle("Events");
                 ArrayList<event> events = new ArrayList<>();
                 events.add(new event("0", "Meeting with Panda", "Presentation of your app"));
                 events.add(new event("1", "Meeting with Manjanna", "Presentation of your assignment"));
@@ -276,19 +244,21 @@ public class Dashboard extends AppCompatActivity implements
                 add_button.show();
                 frag_manager = getSupportFragmentManager();
                 frag_trans = frag_manager.beginTransaction();
-                frag_trans.replace(R.id.container_fragment, new frag_events(events));
+                frag_trans.replace(R.id.container_fragment, new frag_events(events, add_button));
                 frag_trans.commit();
                 break;
 
-            case R.id.notes_list:
+            case R.id.todo_list:
+                toolbar.setTitle("Checklist");
                 add_button.show();
                 frag_manager = getSupportFragmentManager();
                 frag_trans = frag_manager.beginTransaction();
-                frag_trans.replace(R.id.container_fragment, new frag_notes());
+                frag_trans.replace(R.id.container_fragment, new ToDoFrag(add_button));
                 frag_trans.commit();
                 break;
 
             case R.id.account:
+                toolbar.setTitle("Account");
                 add_button.hide();
                 frag_manager = getSupportFragmentManager();
                 frag_trans = frag_manager.beginTransaction();
@@ -298,43 +268,65 @@ public class Dashboard extends AppCompatActivity implements
 
             case R.id.upload:
                 try {
-                    FileWriter fw = new FileWriter(new File(path , "myfile.txt"));
+                    FileWriter fw = new FileWriter(new File(path, "myfile.txt"));
                     fw.write(categories.size() + "\n");
-                    for(category i : categories)
-                    {
+                    for (category i : categories) {
                         fw.write(i.toString());
                     }
                     fw.close();
                 } catch (IOException e2) {
                     e2.printStackTrace();
                 }
-                uploadDataToFirebase(Uri.fromFile(new File(path+"/myfile.txt")));
-                break;
-
-            case R.id.settings:
-                add_button.hide();
-                frag_manager = getSupportFragmentManager();
-                frag_trans = frag_manager.beginTransaction();
-                frag_trans.replace(R.id.container_fragment, new frag_setting());
-                frag_trans.commit();
+                if (isOnline()) {
+                    File file = new File(path + "/myfile.txt");
+                    if (file.exists()) {
+                        uploadDataToFirebase(Uri.fromFile(new File(path + "/myfile.txt")));
+                    }
+                    file = new File(path + "/toDoListDatabase");
+                    if (file.exists()) {
+                        uploadChecklistToFirebase(Uri.fromFile(file));
+                    }
+                } else {
+                    Toast.makeText(this, "Internet connection is not present!", Toast.LENGTH_LONG).show();
+                }
                 break;
 
             case R.id.download:
-                StorageReference profileRef = FirebaseStorage.getInstance().getReference().child("users/" + FirebaseAuth.getInstance().getCurrentUser().getUid()
-                        + "/myfile.txt");
+                if (isOnline()) {
+                    StorageReference profileRef = FirebaseStorage.getInstance().getReference().child("users/" + uID
+                            + "/myfile.txt");
 
-                profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        Toast.makeText(Dashboard.this, "Getting your data from the cloud...", Toast.LENGTH_SHORT).show();
-                        downloadFile(uri);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(Dashboard.this, "Error! : " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+                    profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            Toast.makeText(Dashboard.this, "Getting your data from the cloud...", Toast.LENGTH_SHORT).show();
+                            downloadFile(uri);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(Dashboard.this, "Error! : " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                    StorageReference profileRef2 = FirebaseStorage.getInstance().getReference().child("users/" + uID
+                            + "/toDoListDatabase");
+
+                    profileRef2.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            //Toast.makeText(Dashboard.this, "Getting your data from the cloud...", Toast.LENGTH_SHORT).show();
+                            downloadFile2(uri);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(Dashboard.this, "Error! : " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    Toast.makeText(this, "Internet connection is not present!", Toast.LENGTH_SHORT).show();
+                }
                 break;
 
             case R.id.logout:
@@ -352,27 +344,35 @@ public class Dashboard extends AppCompatActivity implements
         return true;
     }
 
+
     public void onBackPressed() {
 
-        if (doubleBackToExitPressedOnce) {
-            Intent a = new Intent(Intent.ACTION_MAIN);
-            a.addCategory(Intent.CATEGORY_HOME);
-            a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(a);
-        }
-        if (!doubleBackToExitPressedOnce) {
-            Toast.makeText(this, "Press BACK again to exit!", Toast.LENGTH_SHORT).show();
-        }
-        this.doubleBackToExitPressedOnce = true;
-
-
-        new Handler().postDelayed(new Runnable() {
-
-            @Override
-            public void run() {
-                doubleBackToExitPressedOnce = false;
+        // note: you can also use 'getSupportFragmentManager()'
+        if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+            // No backstack to pop, so calling super
+            if (doubleBackToExitPressedOnce) {
+                Intent a = new Intent(Intent.ACTION_MAIN);
+                a.addCategory(Intent.CATEGORY_HOME);
+                a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(a);
             }
-        }, 2000);
+            if (!doubleBackToExitPressedOnce) {
+                Toast.makeText(this, "Press BACK again to exit!", Toast.LENGTH_SHORT).show();
+            }
+            this.doubleBackToExitPressedOnce = true;
+
+
+            new Handler().postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    doubleBackToExitPressedOnce = false;
+                }
+            }, 2000);
+        } else {
+            getSupportFragmentManager().popBackStack();
+            toolbar.setTitle("Inventory");
+        }
     }
 
     @Override
@@ -424,8 +424,13 @@ public class Dashboard extends AppCompatActivity implements
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1000) {
             if (resultCode == Activity.RESULT_OK) {
+                assert data != null;
                 Uri imageUri = data.getData();
-                uploadImageToFirebase(imageUri);
+                if (isOnline()) {
+                    uploadImageToFirebase(imageUri);
+                } else {
+                    Toast.makeText(this, "Internet connection is not present!", Toast.LENGTH_LONG).show();
+                }
             }
 
         }
@@ -433,10 +438,23 @@ public class Dashboard extends AppCompatActivity implements
 
     private void uploadImageToFirebase(Uri imageUri) {
         Toast.makeText(Dashboard.this, "Uploading your photo to the cloud...", Toast.LENGTH_LONG).show();
+
         imgUploadProgressBar = findViewById(R.id.imgProgressBar);
         imgUploadProgressBar.setVisibility(View.VISIBLE);
 
-        StorageReference fileReference = FirebaseStorage.getInstance().getReference().child("users/" + FirebaseAuth.getInstance().getCurrentUser().getUid() + "/profileImg.jpg");
+        ImageView photo = findViewById(R.id.profile_photo);
+        photo.setAlpha(0.3f);
+
+        LinearLayout greyScreen = findViewById(R.id.greyScreen);
+        greyScreen.setVisibility(View.VISIBLE);
+
+        Button verify = findViewById(R.id.phoneVerify);
+        verify.setAlpha(0.3f);
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+        StorageReference fileReference = FirebaseStorage.getInstance().getReference().child("users/" + uID + "/profileImg.jpg");
         fileReference.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -460,17 +478,16 @@ public class Dashboard extends AppCompatActivity implements
                 Toast.makeText(getApplicationContext(), "Error! : " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
-
     }
 
     private void uploadDataToFirebase(Uri fileUri) {
         Toast.makeText(Dashboard.this, "Uploading your data to the cloud...", Toast.LENGTH_LONG).show();
 
-        StorageReference fileReference = FirebaseStorage.getInstance().getReference().child("users/" + FirebaseAuth.getInstance().getCurrentUser().getUid() + "/myfile.txt");
+        StorageReference fileReference = FirebaseStorage.getInstance().getReference().child("users/" + uID + "/myfile.txt");
         fileReference.putFile(fileUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Toast.makeText(Dashboard.this, "Data Uploaded", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Dashboard.this, "Inventory data uploaded!", Toast.LENGTH_SHORT).show();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -478,41 +495,85 @@ public class Dashboard extends AppCompatActivity implements
                 Toast.makeText(getApplicationContext(), "Error! : " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
+    }
 
+    private void uploadChecklistToFirebase(Uri fileUri) {
+        //Toast.makeText(Dashboard.this, "Uploading your checklist to the cloud...", Toast.LENGTH_LONG).show();
+
+        StorageReference fileReference = FirebaseStorage.getInstance().getReference().child("users/" + uID + "/toDoListDatabase");
+        fileReference.putFile(fileUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Toast.makeText(Dashboard.this, "Checklist data uploaded!", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getApplicationContext(), "Error! : " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     public void downloadPhoto(Uri uri) {
-        imgUploadProgressBar = findViewById(R.id.imgProgressBar);
-        imgUploadProgressBar.setVisibility(View.VISIBLE);
-        DownloadManager downloadManager = (DownloadManager) Dashboard.this.getSystemService(DOWNLOAD_SERVICE);
-        DownloadManager.Request request = new DownloadManager.Request(uri);
+        if (isOnline()) {
+            imgUploadProgressBar = findViewById(R.id.imgProgressBar);
+            imgUploadProgressBar.setVisibility(View.VISIBLE);
 
-        File file = new File(imgPath);
-        if (file.exists()) {
-            file.delete();
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+            ImageView photo = findViewById(R.id.profile_photo);
+            photo.setAlpha(0.3f);
+
+            Button verify = findViewById(R.id.phoneVerify);
+            verify.setAlpha(0.3f);
+
+            LinearLayout greyScreen = findViewById(R.id.greyScreen);
+            greyScreen.setVisibility(View.VISIBLE);
+
+            DownloadManager downloadManager = (DownloadManager) Dashboard.this.getSystemService(DOWNLOAD_SERVICE);
+            DownloadManager.Request request = new DownloadManager.Request(uri);
+
+            File file = new File(imgPath);
+            if (file.exists()) {
+                file.delete();
+            }
+
+            request.setDestinationInExternalFilesDir(Dashboard.this, "users/"
+                    + uID, "profileImg.jpg");
+
+            downloadID = downloadManager.enqueue(request);
+        } else {
+            Toast.makeText(this, "Internet connection is not present!", Toast.LENGTH_LONG).show();
         }
-
-        request.setDestinationInExternalFilesDir(Dashboard.this, "users/"
-                + FirebaseAuth.getInstance().getCurrentUser().getUid(), "profileImg.jpg");
-
-        downloadID = downloadManager.enqueue(request);
     }
 
-    public void downloadFile(Uri uri)
-    {
-        //imgUploadProgressBar = findViewById(R.id.imgProgressBar);
-        //imgUploadProgressBar.setVisibility(View.VISIBLE);
+    public void downloadFile(Uri uri) {
 
-        File f = new File(path+"/myfile.txt");
-        if(f.exists())f.delete();
+        File f = new File(path + "/myfile.txt");
+        if (f.exists()) f.delete();
 
         DownloadManager downloadManager = (DownloadManager) Dashboard.this.getSystemService(DOWNLOAD_SERVICE);
         DownloadManager.Request request = new DownloadManager.Request(uri);
 
         request.setDestinationInExternalFilesDir(Dashboard.this, "users/"
-                + FirebaseAuth.getInstance().getCurrentUser().getUid(), "myfile.txt");
+                + uID, "myfile.txt");
 
         downloadID2 = downloadManager.enqueue(request);
+    }
+
+    public void downloadFile2(Uri uri) {
+
+        File f = new File(path + "/toDoListDatabase");
+        if (f.exists()) f.delete();
+
+        DownloadManager downloadManager = (DownloadManager) Dashboard.this.getSystemService(DOWNLOAD_SERVICE);
+        DownloadManager.Request request = new DownloadManager.Request(uri);
+
+        request.setDestinationInExternalFilesDir(Dashboard.this, "users/"
+                + uID, "toDoListDatabase");
+
+        downloadID3 = downloadManager.enqueue(request);
     }
 
     @Override
@@ -526,18 +587,43 @@ public class Dashboard extends AppCompatActivity implements
     }
 
     @Override
-    protected void onStop()
-    {
+    protected void onStop() {
         super.onStop();
 
         String path = Environment.getExternalStorageDirectory().getAbsolutePath()
-                + "/Android/data/com.example.oops_project/files/users/" + FirebaseAuth.getInstance().getCurrentUser().getUid();
+                + "/Android/data/com.example.oops_project/files/users/" + uID;
 
         try {
-            FileWriter fw = new FileWriter(new File(path , "myfile.txt"));
+            FileWriter fw = new FileWriter(new File(path, "myfile.txt"));
             fw.write(categories.size() + "\n");
-            for(category i : categories)
-            {
+            for (category i : categories) {
+                fw.write(i.toString());
+            }
+            fw.close();
+        } catch (IOException e2) {
+            e2.printStackTrace();
+        }
+    }
+
+    public boolean isOnline() {
+        Runtime runtime = Runtime.getRuntime();
+        try {
+            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
+            int exitValue = ipProcess.waitFor();
+            return (exitValue == 0);
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public void writeData()
+    {
+        try {
+            FileWriter fw = new FileWriter(new File(path, "myfile.txt"));
+            fw.write(categories.size() + "\n");
+            for (category i : categories) {
                 fw.write(i.toString());
             }
             fw.close();

@@ -7,16 +7,17 @@
         <menu>
             <item
                 android:id="@+id/inventory_list"
-                android:title="Inventory"
-                android:icon="@drawable/ic_inventory"/>
+                android:icon="@drawable/ic_inventory"
+                android:title="Inventory" />
             <item
                 android:id="@+id/events_list"
-                android:title="Events"
-                android:icon="@drawable/round_groups_24"/>
+                android:icon="@drawable/round_groups_24"
+                android:title="Events" />
             <item
-                android:id="@+id/notes_list"
-                android:title="Notes"
-                android:icon="@drawable/round_notes_24"/>
+                android:id="@+id/todo_list"
+                android:icon="@drawable/ic_list"
+                android:title="Checklist"
+                app:showAsAction="always" />
         </menu>
     </item>
 
@@ -28,26 +29,24 @@
                 android:title="Account" />
 
             <item
-                android:id="@+id/settings"
-                android:icon="@drawable/ic_settings"
-                android:title="Settings" />
-
-            <item
                 android:id="@+id/logout"
-                android:title="Logout"
-                android:icon="@drawable/ic_logout"/>
+                android:icon="@drawable/ic_logout"
+                android:title="Logout" />
         </menu>
     </item>
 
+    <item android:title="Sync">
+        <menu>
+            <item
+                android:id="@+id/upload"
+                android:icon="@drawable/ic_upload"
+                android:title="Backup Data" />
 
-    <item
-        android:id="@+id/upload"
-        android:icon="@drawable/ic_upload"
-        android:title="Upload" />
-
-    <item
-        android:id="@+id/download"
-        android:icon="@drawable/ic_download"
-        android:title="Download" />
+            <item
+                android:id="@+id/download"
+                android:icon="@drawable/ic_download"
+                android:title="Download Data" />
+        </menu>
+    </item>
 
 </menu>
