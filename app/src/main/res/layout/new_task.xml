@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@color/background_black">
 
     <EditText
         android:id="@+id/newTaskText"
@@ -9,8 +10,11 @@
         android:layout_height="wrap_content"
         android:background="@null"
         android:hint="New Task"
+        android:maxLength="140"
         android:padding="20dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/white"
+        android:textColorHint="@color/grey" />
 
     <Button
         android:id="@+id/newTaskButton"

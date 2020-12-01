@@ -61,6 +61,6 @@ public class addItemDialog extends DialogFragment {
     }
 
     public interface transferCall {
-        public void onSaveItem(String name, String price, String quantity);
+        void onSaveItem(String name, String price, String quantity);
     }
 }

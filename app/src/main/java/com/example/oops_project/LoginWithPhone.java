@@ -31,7 +31,7 @@ public class LoginWithPhone extends AppCompatActivity {
     EditText otpNumberOne, otpNumberTwo, otpNumberThree, otpNumberFour, otpNumberFive, otpNumberSix;
     EditText mCC, mPhone;
     Button requestOTP, resendOTP, loginButton;
-    TextView canResend, textView42;
+    TextView canResend, textView42, textView32;
     Boolean otpValid = true;
     LinearLayout greyScreen;
     ProgressBar progressBar;
@@ -63,6 +63,7 @@ public class LoginWithPhone extends AppCompatActivity {
         loginButton = findViewById(R.id.button3);
         canResend = findViewById(R.id.textView32);
         textView42 = findViewById(R.id.textView42);
+        textView32 = findViewById(R.id.textView32);
         greyScreen = findViewById(R.id.greyScreenLoginWithPhone);
         progressBar = findViewById(R.id.progressBarLoginWithPhone);
 
@@ -93,8 +94,16 @@ public class LoginWithPhone extends AppCompatActivity {
 
                     greyScreen.setVisibility(View.VISIBLE);
                     progressBar.setVisibility(View.VISIBLE);
-                    loginButton.setAlpha(0.3f);
                     resendOTP.setAlpha(0.3f);
+                    loginButton.setAlpha(0.3f);
+                    textView42.setAlpha(0.3f);
+                    textView32.setAlpha(0.3f);
+                    otpNumberOne.setAlpha(0.3f);
+                    otpNumberTwo.setAlpha(0.3f);
+                    otpNumberThree.setAlpha(0.3f);
+                    otpNumberFour.setAlpha(0.3f);
+                    otpNumberFive.setAlpha(0.3f);
+                    otpNumberSix.setAlpha(0.3f);
                     getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
@@ -126,11 +135,20 @@ public class LoginWithPhone extends AppCompatActivity {
                 mPhone.setVisibility(View.GONE);
                 textView42.setText("Enter the OTP");
 
-                greyScreen.setVisibility(View.GONE);
-                progressBar.setVisibility(View.GONE);
-                requestOTP.setAlpha(1f);
+                greyScreen.setVisibility(View.INVISIBLE);
+                progressBar.setVisibility(View.INVISIBLE);
                 resendOTP.setAlpha(1f);
                 loginButton.setAlpha(1f);
+                textView42.setAlpha(1f);
+                textView32.setAlpha(1f);
+                otpNumberOne.setAlpha(1f);
+                otpNumberTwo.setAlpha(1f);
+                otpNumberThree.setAlpha(1f);
+                otpNumberFour.setAlpha(1f);
+                otpNumberFive.setAlpha(1f);
+                otpNumberSix.setAlpha(1f);
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                 Toast.makeText(getApplicationContext(), "OTP has been sent!", Toast.LENGTH_LONG).show();
             }
@@ -152,7 +170,6 @@ public class LoginWithPhone extends AppCompatActivity {
                 getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                         WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                 loginAuthentication(phoneAuthCredential);
-                resendOTP.setVisibility(View.GONE);
             }
 
             @Override
@@ -173,7 +190,7 @@ public class LoginWithPhone extends AppCompatActivity {
 
     public void requestOTP(View view) {
         mCC = findViewById(R.id.loginCC);
-        mPhone = findViewById(R.id.buttonLoginPhone);
+        mPhone = findViewById(R.id.LoginPhone);
 
 
         if (TextUtils.isEmpty(mPhone.getText().toString())) {
@@ -204,6 +221,9 @@ public class LoginWithPhone extends AppCompatActivity {
         greyScreen.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.VISIBLE);
         requestOTP.setAlpha(0.3f);
+        textView42.setAlpha(0.3f);
+        mPhone.setAlpha(0.3f);
+        mCC.setAlpha(0.3f);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         sendOTP(phone);
@@ -219,8 +239,16 @@ public class LoginWithPhone extends AppCompatActivity {
 
         greyScreen.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.VISIBLE);
-        loginButton.setAlpha(0.3f);
         resendOTP.setAlpha(0.3f);
+        loginButton.setAlpha(0.3f);
+        textView42.setAlpha(0.3f);
+        textView32.setAlpha(0.3f);
+        otpNumberOne.setAlpha(0.3f);
+        otpNumberTwo.setAlpha(0.3f);
+        otpNumberThree.setAlpha(0.3f);
+        otpNumberFour.setAlpha(0.3f);
+        otpNumberFive.setAlpha(0.3f);
+        otpNumberSix.setAlpha(0.3f);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
@@ -244,20 +272,12 @@ public class LoginWithPhone extends AppCompatActivity {
                     if (TextUtils.isEmpty(email) || email == null) {
                         Toast.makeText(getApplicationContext(), "Error! : Phone number is not verified or associated with any user!", Toast.LENGTH_LONG).show();
                         FirebaseAuth.getInstance().getCurrentUser().delete();
-                        greyScreen.setVisibility(View.GONE);
-                        progressBar.setVisibility(View.GONE);
-                        loginButton.setAlpha(1f);
-                        resendOTP.setAlpha(1f);
-                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                         startActivity(new Intent(getApplicationContext(), Login.class));
                     } else {
                         Toast.makeText(getApplicationContext(), "Login through phone successful!", Toast.LENGTH_SHORT).show();
-                        greyScreen.setVisibility(View.GONE);
-                        progressBar.setVisibility(View.GONE);
-                        loginButton.setAlpha(1f);
-                        resendOTP.setAlpha(1f);
-                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                        startActivity(new Intent(getApplicationContext(), Dashboard.class));
+                        Intent intent = new Intent(getApplicationContext(), Dashboard.class);
+                        intent.putExtra("login", "1");
+                        startActivity(intent);
                     }
                 }
             }
@@ -265,11 +285,6 @@ public class LoginWithPhone extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getApplicationContext(), "Error! : " + e.getMessage(), Toast.LENGTH_LONG).show();
-                greyScreen.setVisibility(View.GONE);
-                progressBar.setVisibility(View.GONE);
-                loginButton.setAlpha(1f);
-                resendOTP.setAlpha(1f);
-                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                 startActivity(new Intent(getApplicationContext(), Login.class));
             }
         });

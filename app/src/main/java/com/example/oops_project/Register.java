@@ -34,7 +34,7 @@ public class Register extends AppCompatActivity {
 
     EditText mFullName, mEmail, mPassword, mPhone, mProfession, mCC;
     Button mRegisterBtn;
-    TextView mLoginButton;
+    TextView mLoginButton, registerHeading, registerHeading2;
     ProgressBar progressBar;
     FirebaseAuth firebaseAuth;
     FirebaseFirestore fStore;
@@ -60,6 +60,8 @@ public class Register extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         firebaseAuth = FirebaseAuth.getInstance();
         greyScreen = findViewById(R.id.greyScreenRegister);
+        registerHeading = findViewById(R.id.registerHeading);
+        registerHeading2 = findViewById(R.id.registerHeading2);
 
         // FUNCTIONALITY OF SIGN UP BUTTON
 
@@ -138,7 +140,16 @@ public class Register extends AppCompatActivity {
 
                 progressBar.setVisibility(View.VISIBLE);
                 greyScreen.setVisibility(View.VISIBLE);
+                mFullName.setAlpha(0.3f);
+                mEmail.setAlpha(0.3f);
+                mPassword.setAlpha(0.3f);
+                mPhone.setAlpha(0.3f);
                 mRegisterBtn.setAlpha(0.3f);
+                mLoginButton.setAlpha(0.3f);
+                mProfession.setAlpha(0.3f);
+                mCC.setAlpha(0.3f);
+                registerHeading.setAlpha(0.3f);
+                registerHeading2.setAlpha(0.3f);
                 getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                         WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
@@ -154,18 +165,11 @@ public class Register extends AppCompatActivity {
                                 @Override
                                 public void onSuccess(Void aVoid) {
                                     Toast.makeText(Register.this, "A verification e-mail has been sent to your e-mail address!", Toast.LENGTH_LONG).show();
-                                    progressBar.setVisibility(View.INVISIBLE);
-                                    greyScreen.setVisibility(View.GONE);
-                                    mRegisterBtn.setAlpha(1f);
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
                                     Toast.makeText(Register.this, "Error! : " + e.getMessage(), Toast.LENGTH_LONG).show();
-                                    progressBar.setVisibility(View.INVISIBLE);
-                                    greyScreen.setVisibility(View.GONE);
-                                    mRegisterBtn.setAlpha(1f);
-                                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                                     startActivity(getIntent());
                                 }
                             });
@@ -175,7 +179,9 @@ public class Register extends AppCompatActivity {
                             Map<String, Object> usersMap = new HashMap<>();
                             usersMap.put("name", name);
                             usersMap.put("email", email);
-                            usersMap.put("profession", profession);
+
+                            String temp = Character.toUpperCase(profession.charAt(0)) + profession.substring(1);
+                            usersMap.put("profession", temp);
 
                             if (TextUtils.isEmpty(code)) {
                                 usersMap.put("phone", "+91" + number);
@@ -188,10 +194,6 @@ public class Register extends AppCompatActivity {
                                 @Override
                                 public void onSuccess(Void aVoid) {
                                     FirebaseAuth.getInstance().signOut();
-                                    progressBar.setVisibility(View.INVISIBLE);
-                                    greyScreen.setVisibility(View.GONE);
-                                    mRegisterBtn.setAlpha(1f);
-
                                     startActivity(new Intent(getApplicationContext(), Login.class));
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
@@ -199,16 +201,22 @@ public class Register extends AppCompatActivity {
                                 public void onFailure(@NonNull Exception e) {
                                     FirebaseAuth.getInstance().signOut();
                                     Toast.makeText(Register.this, "Error! Something went wrong!", Toast.LENGTH_LONG).show();
-                                    progressBar.setVisibility(View.INVISIBLE);
-                                    greyScreen.setVisibility(View.GONE);
-                                    mRegisterBtn.setAlpha(1f);
-                                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                                    startActivity(getIntent());
                                 }
                             });
                         } else {
                             progressBar.setVisibility(View.INVISIBLE);
-                            greyScreen.setVisibility(View.GONE);
+                            greyScreen.setVisibility(View.INVISIBLE);
+                            mFullName.setAlpha(1f);
+                            mEmail.setAlpha(1f);
+                            mPassword.setAlpha(1f);
+                            mPhone.setAlpha(1f);
                             mRegisterBtn.setAlpha(1f);
+                            mLoginButton.setAlpha(1f);
+                            mProfession.setAlpha(1f);
+                            mCC.setAlpha(1f);
+                            registerHeading.setAlpha(1f);
+                            registerHeading2.setAlpha(1f);
                             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                             Toast.makeText(Register.this, "Error! : " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                         }

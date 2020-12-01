@@ -1,17 +1,30 @@
 package com.example.oops_project;
 
+import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.provider.CalendarContract;
 import android.provider.MediaStore;
+import android.text.Html;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.TextAppearanceSpan;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -25,12 +38,14 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -39,6 +54,8 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -51,27 +68,48 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Objects;
 import java.util.Scanner;
+import org.apache.commons.io.FileUtils;
 
 public class Dashboard extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
         frag_account.frag_account_events {
 
-    private final ArrayList<category> categories = new ArrayList<>();
+    private static final int CALENDAR_PERMISSION_CODE = 101;
+    private static final int STORAGE_PERMISSION_CODE = 100;
+
+    private static final String permissions[] = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.WRITE_CALENDAR};
+    private static final int requestCodes[] = new int[] {STORAGE_PERMISSION_CODE, CALENDAR_PERMISSION_CODE};
+
+    int addEvents = 0;
     String imgPath;
     String path = Environment.getExternalStorageDirectory().getAbsolutePath()
             + "/Android/data/com.example.oops_project/files/users/" + Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
     EditText mCC, mEnteredPhone;
     String passPhone;
     long downloadID, downloadID2, downloadID3;
-    String uID;
+    public static String uID;
     Toolbar toolbar;
+
+    MaterialAlertDialogBuilder dialog;
+    androidx.appcompat.app.AlertDialog d;
+
+    private final ArrayList<category> categories = new ArrayList<>();
+    private final ArrayList<event> events = new ArrayList();
     private FloatingActionButton add_button;
     private DrawerLayout drawer;
     private FragmentManager frag_manager;
@@ -79,6 +117,13 @@ public class Dashboard extends AppCompatActivity implements
     private boolean doubleBackToExitPressedOnce = false;
     private TextView userNameNav, professionNav;
     private ProgressBar imgUploadProgressBar;
+    private categoryRecViewAdapter categoryRecViewAdapter;
+    private itemRecViewAdapter itemRecViewAdapter;
+    private int Position;
+    private frag_inventory frag_inventory;
+    private frag_events frag_events;
+    private ToDoFrag toDoFrag;
+    private frag_account frag_account;
     private final BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -94,16 +139,21 @@ public class Dashboard extends AppCompatActivity implements
                 startActivity(getIntent());
             } else if (downloadID3 == id) {
                 Toast.makeText(getApplicationContext(), "Data downloaded successfully!", Toast.LENGTH_LONG).show();
+                Intent eventIntent = new Intent(getApplicationContext(), Dashboard.class);
+                eventIntent.putExtra("login", "1");
                 finish();
-                startActivity(getIntent());
+                startActivity(eventIntent);
             }
         }
     };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dashboard);
+
+        checkPermission(permissions, requestCodes);
 
         uID = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getUid());
 
@@ -130,6 +180,26 @@ public class Dashboard extends AppCompatActivity implements
         professionNav = headerView.findViewById(R.id.profession_nav);
         ImageView profileImageNav = headerView.findViewById(R.id.user_image);
 
+        Menu menu = navigationView.getMenu();
+
+        MenuItem tools= menu.findItem(R.id.generalHeader);
+        SpannableString s = new SpannableString(tools.getTitle());
+        s.setSpan(new TextAppearanceSpan(this, R.style.TextAppearance44), 0, s.length(), 0);
+        tools.setTitle(s);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        tools = menu.findItem(R.id.userHeader);
+        s = new SpannableString(tools.getTitle());
+        s.setSpan(new TextAppearanceSpan(this, R.style.TextAppearance44), 0, s.length(), 0);
+        tools.setTitle(s);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        tools = menu.findItem(R.id.syncHeader);
+        s = new SpannableString(tools.getTitle());
+        s.setSpan(new TextAppearanceSpan(this, R.style.TextAppearance44), 0, s.length(), 0);
+        tools.setTitle(s);
+        navigationView.setNavigationItemSelectedListener(this);
+
         File file = new File(imgPath);
         if (file.exists()) {
             Glide.with(getApplicationContext())
@@ -150,7 +220,7 @@ public class Dashboard extends AppCompatActivity implements
 
                 if (value != null) {
                     String name = value.getString("name");
-                    String nm[] = name.split(" ", 2);
+                    String[] nm = name.split(" ", 2);
                     name = nm[0];
                     userNameNav.setText(name);
                     if (!TextUtils.isEmpty(value.getString("profession"))) {
@@ -170,48 +240,46 @@ public class Dashboard extends AppCompatActivity implements
             }
         });
 
+        readData();
 
-        try {
-            Scanner reader = new Scanner(new File(path, "myfile.txt"));
-            int count = reader.nextInt();
-            reader.nextLine();
-            while (count != 0) {
-                reader.nextLine();
-                int c_ID = reader.nextInt();
-                reader.nextLine();
-                String c_Name = reader.nextLine();
-                String c_shortDes = reader.nextLine();
-                String c_ImgURI = reader.nextLine();
-                int item_count = reader.nextInt();
-                reader.nextLine();
-                ArrayList<item> c_items = new ArrayList<>();
-                while (item_count != 0) {
-                    String i_ID = reader.nextLine();
-                    String i_name = reader.nextLine();
-                    String i_price = reader.nextLine();
-                    String i_quantity = reader.nextLine();
-                    String i_imgURI = reader.nextLine();
-                    c_items.add(new item(i_ID, i_name, i_price, i_quantity, i_imgURI));
-                    item_count--;
-                }
-                reader.nextLine();
-                categories.add(new category(c_ID, c_Name, c_shortDes, c_ImgURI, c_items));
-                count--;
-
-            }
-            //Toast.makeText(this, "Data Read", Toast.LENGTH_SHORT).show();
-            reader.close();
-        } catch (FileNotFoundException e) {
-            File f = new File(Environment.getExternalStorageDirectory(),
-                    "/Android/data/com.example.oops_project/files/users/" + uID + "/");
-            f.mkdirs();
-
+        Intent data = getIntent();
+        if(data.getStringExtra("login") != null) {
+            addEvents = Integer.parseInt(data.getStringExtra("login"));
         }
+
+        if(addEvents == 1) {
+            insertEvents();
+        }
+
+        frag_inventory = new frag_inventory(categories, add_button, toolbar);
+        frag_events = new frag_events(events, add_button);
+        toDoFrag = new ToDoFrag(add_button);
+        frag_account = new frag_account();
+
+        frag_inventory.setTransferCall(new frag_inventory.transferCall() {
+            @Override
+            public void imageUploadCategory(categoryRecViewAdapter adapter, int pos) {
+                Intent openGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                Position = pos;
+                categoryRecViewAdapter = adapter;
+                startActivityForResult(openGalleryIntent, 1001);
+            }
+
+            @Override
+            public void imageUploadItem(itemRecViewAdapter adapter, int pos) {
+                Intent openGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                Position = pos;
+                itemRecViewAdapter = adapter;
+                startActivityForResult(openGalleryIntent, 1002);
+            }
+        });
+
+
 
         frag_manager = getSupportFragmentManager();
         frag_trans = frag_manager.beginTransaction();
 
-        frag_trans.add(R.id.container_fragment, new frag_inventory(categories, add_button, toolbar));
+        frag_trans.add(R.id.container_fragment, frag_inventory);
 
         frag_trans.commit();
 
@@ -229,22 +297,16 @@ public class Dashboard extends AppCompatActivity implements
                 add_button.show();
                 frag_manager = getSupportFragmentManager();
                 frag_trans = frag_manager.beginTransaction();
-                frag_trans.replace(R.id.container_fragment, new frag_inventory(categories, add_button, toolbar));
+                frag_trans.replace(R.id.container_fragment, frag_inventory);
                 frag_trans.commit();
                 break;
 
             case R.id.events_list:
                 toolbar.setTitle("Events");
-                ArrayList<event> events = new ArrayList<>();
-                events.add(new event("0", "Meeting with Panda", "Presentation of your app"));
-                events.add(new event("1", "Meeting with Manjanna", "Presentation of your assignment"));
-                events.add(new event("2", "Meeting with Venkata", "Presentation of your assignment"));
-                events.add(new event("3", "Meeting with Rishi", "Presentation of your solution"));
-
                 add_button.show();
                 frag_manager = getSupportFragmentManager();
                 frag_trans = frag_manager.beginTransaction();
-                frag_trans.replace(R.id.container_fragment, new frag_events(events, add_button));
+                frag_trans.replace(R.id.container_fragment, frag_events);
                 frag_trans.commit();
                 break;
 
@@ -253,7 +315,7 @@ public class Dashboard extends AppCompatActivity implements
                 add_button.show();
                 frag_manager = getSupportFragmentManager();
                 frag_trans = frag_manager.beginTransaction();
-                frag_trans.replace(R.id.container_fragment, new ToDoFrag(add_button));
+                frag_trans.replace(R.id.container_fragment, toDoFrag);
                 frag_trans.commit();
                 break;
 
@@ -262,30 +324,40 @@ public class Dashboard extends AppCompatActivity implements
                 add_button.hide();
                 frag_manager = getSupportFragmentManager();
                 frag_trans = frag_manager.beginTransaction();
-                frag_trans.replace(R.id.container_fragment, new frag_account());
+                frag_trans.replace(R.id.container_fragment, frag_account);
                 frag_trans.commitNow();
                 break;
 
             case R.id.upload:
-                try {
-                    FileWriter fw = new FileWriter(new File(path, "myfile.txt"));
-                    fw.write(categories.size() + "\n");
-                    for (category i : categories) {
-                        fw.write(i.toString());
-                    }
-                    fw.close();
-                } catch (IOException e2) {
-                    e2.printStackTrace();
-                }
+                writeData();
+
                 if (isOnline()) {
-                    File file = new File(path + "/myfile.txt");
-                    if (file.exists()) {
-                        uploadDataToFirebase(Uri.fromFile(new File(path + "/myfile.txt")));
-                    }
-                    file = new File(path + "/toDoListDatabase");
-                    if (file.exists()) {
-                        uploadChecklistToFirebase(Uri.fromFile(file));
-                    }
+                    dialog = new MaterialAlertDialogBuilder(Dashboard.this, R.style.MyDialogTheme);
+                    dialog.setTitle("Backup data");
+                    dialog.setMessage(Html.fromHtml("<font color='#FFFFFF'>Are you sure you want to backup your current data?</font>"));
+                    dialog.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            File file = new File(path + "/myfile.txt");
+                            if (file.exists()) {
+                                uploadDataToFirebase(Uri.fromFile(new File(path + "/myfile.txt")));
+                            }
+                            file = new File(path + "/toDoListDatabase");
+                            if (file.exists()) {
+                                uploadChecklistToFirebase(Uri.fromFile(file));
+                            }
+                        }
+                    });
+                    dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    d = dialog.create();
+                    d.show();
+                    d.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(Dashboard.this, R.color.blue));
+                    d.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(Dashboard.this, R.color.blue));
                 } else {
                     Toast.makeText(this, "Internet connection is not present!", Toast.LENGTH_LONG).show();
                 }
@@ -293,49 +365,88 @@ public class Dashboard extends AppCompatActivity implements
 
             case R.id.download:
                 if (isOnline()) {
-                    StorageReference profileRef = FirebaseStorage.getInstance().getReference().child("users/" + uID
-                            + "/myfile.txt");
+                    dialog = new MaterialAlertDialogBuilder(Dashboard.this, R.style.MyDialogTheme);
+                    dialog.setTitle("Download data");
+                    dialog.setMessage(Html.fromHtml("<font color='#FFFFFF'>Are you sure you want to download your backed up data?</font>"));
+                    dialog.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            StorageReference profileRef = FirebaseStorage.getInstance().getReference().child("users/" + uID
+                                    + "/myfile.txt");
 
-                    profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            Toast.makeText(Dashboard.this, "Getting your data from the cloud...", Toast.LENGTH_SHORT).show();
-                            downloadFile(uri);
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(Dashboard.this, "Error! : " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    Toast.makeText(Dashboard.this, "Getting your data from the cloud...", Toast.LENGTH_SHORT).show();
+                                    downloadFile(uri);
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(Dashboard.this, "Error! : " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+
+                            StorageReference profileRef2 = FirebaseStorage.getInstance().getReference().child("users/" + uID
+                                    + "/toDoListDatabase");
+
+                            profileRef2.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    //Toast.makeText(Dashboard.this, "Getting your data from the cloud...", Toast.LENGTH_SHORT).show();
+                                    downloadFile2(uri);
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(Dashboard.this, "Error! : " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         }
                     });
-
-                    StorageReference profileRef2 = FirebaseStorage.getInstance().getReference().child("users/" + uID
-                            + "/toDoListDatabase");
-
-                    profileRef2.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onSuccess(Uri uri) {
-                            //Toast.makeText(Dashboard.this, "Getting your data from the cloud...", Toast.LENGTH_SHORT).show();
-                            downloadFile2(uri);
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(Dashboard.this, "Error! : " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
                         }
                     });
+                    d = dialog.create();
+                    d.show();
+                    d.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(Dashboard.this, R.color.blue));
+                    d.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(Dashboard.this, R.color.blue));
                 } else {
                     Toast.makeText(this, "Internet connection is not present!", Toast.LENGTH_SHORT).show();
                 }
                 break;
 
             case R.id.logout:
-                FirebaseAuth.getInstance().signOut();
-                if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-                    Toast.makeText(Dashboard.this, "Logout successful!", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(getApplicationContext(), Login.class));
-                }
-                finish();
+
+                dialog = new MaterialAlertDialogBuilder(Dashboard.this, R.style.MyDialogTheme);
+                dialog.setTitle("Logout");
+                dialog.setMessage(Html.fromHtml("<font color='#FFFFFF'>Are you sure you want to logout?</font>"));
+                dialog.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                deleteEvents();
+                                FirebaseAuth.getInstance().signOut();
+                                if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+                                    Toast.makeText(Dashboard.this, "Logout successful!", Toast.LENGTH_SHORT).show();
+                                    startActivity(new Intent(getApplicationContext(), Login.class));
+                                }
+                                finish();
+                            }
+                        });
+                dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                d = dialog.create();
+                d.show();
+                d.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(Dashboard.this, R.color.blue));
+                d.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(Dashboard.this, R.color.blue));
+
                 break;
             default:
                 break;
@@ -343,7 +454,6 @@ public class Dashboard extends AppCompatActivity implements
 
         return true;
     }
-
 
     public void onBackPressed() {
 
@@ -422,6 +532,7 @@ public class Dashboard extends AppCompatActivity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == 1000) {
             if (resultCode == Activity.RESULT_OK) {
                 assert data != null;
@@ -432,7 +543,60 @@ public class Dashboard extends AppCompatActivity implements
                     Toast.makeText(this, "Internet connection is not present!", Toast.LENGTH_LONG).show();
                 }
             }
+        }
 
+        if(requestCode == 1001) {
+            if(resultCode == Activity.RESULT_OK) {
+                assert data != null;
+                Uri imgUri = data.getData();
+
+                String realUri  = getRealPathFromURI(imgUri);
+                String dest = path + "/" + categoryRecViewAdapter.getCategories().get(Position).getId() + ".jpg";
+                categoryRecViewAdapter.getCategories().get(Position).setImageURL(dest);
+
+                File source = new File(realUri);
+                File destination = new File(dest);
+                try
+                {
+                    FileUtils.copyFile(source, destination);
+                }
+                catch (IOException e)
+                {
+                    Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
+                }
+                categoryRecViewAdapter.notifyItemChanged(Position);
+            }
+        }
+
+        if(requestCode == 1002) {
+            if(resultCode == Activity.RESULT_OK) {
+                assert data != null;
+                Uri imgUri = data.getData();
+
+                String realUri = getRealPathFromURI(imgUri);
+                int categoryId = itemRecViewAdapter.getItems().get(Position).getCategoryId();
+                String itemId = itemRecViewAdapter.getItems().get(Position).getId();
+
+                String dest = path + "/" + categoryId + itemId + ".jpg";
+
+                itemRecViewAdapter.getItems().get(Position).setImgURI(dest);
+                itemRecViewAdapter.getItems().get(Position).setShareURI(dest);
+
+                File source = new File(realUri);
+                File destination = new File(dest);
+                try
+                {
+                    FileUtils.copyFile(source, destination);
+                }
+                catch (IOException e)
+                {
+                    Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
+                }
+
+                itemRecViewAdapter.notifyItemChanged(Position);
+            }
         }
     }
 
@@ -440,17 +604,34 @@ public class Dashboard extends AppCompatActivity implements
         Toast.makeText(Dashboard.this, "Uploading your photo to the cloud...", Toast.LENGTH_LONG).show();
 
         imgUploadProgressBar = findViewById(R.id.imgProgressBar);
+        ImageView photo = findViewById(R.id.profile_photo);
+        Button verify = findViewById(R.id.phoneVerify);
+        LinearLayout greyScreen = findViewById(R.id.greyScreen);
+        EditText cc = findViewById(R.id.CC2);
+        EditText phone = findViewById(R.id.personPhone2);
+        MaterialButton updateName = findViewById(R.id.updateName);
+        MaterialButton updateProfession = findViewById(R.id.updateProfession);
+        TextView name, email, phone2, profession, changePhoto;
+        name = findViewById(R.id.profileName);
+        email = findViewById(R.id.profileEmail);
+        phone2 = findViewById(R.id.profilePhone);
+        profession = findViewById(R.id.profileProfession2);
+        changePhoto = findViewById(R.id.changeProfilePhoto);
+
+        greyScreen.setVisibility(View.VISIBLE);
         imgUploadProgressBar.setVisibility(View.VISIBLE);
 
-        ImageView photo = findViewById(R.id.profile_photo);
         photo.setAlpha(0.3f);
-
-        LinearLayout greyScreen = findViewById(R.id.greyScreen);
-        greyScreen.setVisibility(View.VISIBLE);
-
-        Button verify = findViewById(R.id.phoneVerify);
+        changePhoto.setAlpha(0.3f);
+        name.setAlpha(0.3f);
+        email.setAlpha(0.3f);
+        phone2.setAlpha(0.3f);
+        profession.setAlpha(0.3f);
+        updateName.setAlpha(0.3f);
+        updateProfession.setAlpha(0.3f);
         verify.setAlpha(0.3f);
-
+        phone.setAlpha(0.3f);
+        cc.setAlpha(0.3f);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
@@ -459,17 +640,22 @@ public class Dashboard extends AppCompatActivity implements
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                fileReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        downloadPhoto(uri);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(Dashboard.this, "Error! Something went wrong!", Toast.LENGTH_LONG).show();
-                    }
-                });
+                File source = new File(getRealPathFromURI(imageUri));
+                File destination = new File(imgPath);
+                try
+                {
+                    FileUtils.copyFile(source, destination);
+                }
+                catch (IOException e)
+                {
+                    Toast.makeText(Dashboard.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
+                }
+
+                Toast.makeText(Dashboard.this, "Profile picture updated successfully!", Toast.LENGTH_SHORT).show();
+                startActivity(getIntent());
+
+
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -487,7 +673,7 @@ public class Dashboard extends AppCompatActivity implements
         fileReference.putFile(fileUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Toast.makeText(Dashboard.this, "Inventory data uploaded!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Dashboard.this, "Data uploaded!", Toast.LENGTH_SHORT).show();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -504,7 +690,7 @@ public class Dashboard extends AppCompatActivity implements
         fileReference.putFile(fileUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Toast.makeText(Dashboard.this, "Checklist data uploaded!", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(Dashboard.this, "Checklist data uploaded!", Toast.LENGTH_SHORT).show();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -516,20 +702,38 @@ public class Dashboard extends AppCompatActivity implements
 
     public void downloadPhoto(Uri uri) {
         if (isOnline()) {
+
             imgUploadProgressBar = findViewById(R.id.imgProgressBar);
+            ImageView photo = findViewById(R.id.profile_photo);
+            Button verify = findViewById(R.id.phoneVerify);
+            LinearLayout greyScreen = findViewById(R.id.greyScreen);
+            EditText cc = findViewById(R.id.CC2);
+            EditText phone = findViewById(R.id.personPhone2);
+            MaterialButton updateName = findViewById(R.id.updateName);
+            MaterialButton updateProfession = findViewById(R.id.updateProfession);
+            TextView name, email, phone2, profession, changePhoto;
+            name = findViewById(R.id.profileName);
+            email = findViewById(R.id.profileEmail);
+            phone2 = findViewById(R.id.profilePhone);
+            profession = findViewById(R.id.profileProfession2);
+            changePhoto = findViewById(R.id.changeProfilePhoto);
+
+            greyScreen.setVisibility(View.VISIBLE);
             imgUploadProgressBar.setVisibility(View.VISIBLE);
 
+            photo.setAlpha(0.3f);
+            changePhoto.setAlpha(0.3f);
+            name.setAlpha(0.3f);
+            email.setAlpha(0.3f);
+            phone2.setAlpha(0.3f);
+            profession.setAlpha(0.3f);
+            updateName.setAlpha(0.3f);
+            updateProfession.setAlpha(0.3f);
+            verify.setAlpha(0.3f);
+            phone.setAlpha(0.3f);
+            cc.setAlpha(0.3f);
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-
-            ImageView photo = findViewById(R.id.profile_photo);
-            photo.setAlpha(0.3f);
-
-            Button verify = findViewById(R.id.phoneVerify);
-            verify.setAlpha(0.3f);
-
-            LinearLayout greyScreen = findViewById(R.id.greyScreen);
-            greyScreen.setVisibility(View.VISIBLE);
 
             DownloadManager downloadManager = (DownloadManager) Dashboard.this.getSystemService(DOWNLOAD_SERVICE);
             DownloadManager.Request request = new DownloadManager.Request(uri);
@@ -550,8 +754,11 @@ public class Dashboard extends AppCompatActivity implements
 
     public void downloadFile(Uri uri) {
 
+        deleteEvents();
+
         File f = new File(path + "/myfile.txt");
-        if (f.exists()) f.delete();
+        if (f.exists())
+            f.delete();
 
         DownloadManager downloadManager = (DownloadManager) Dashboard.this.getSystemService(DOWNLOAD_SERVICE);
         DownloadManager.Request request = new DownloadManager.Request(uri);
@@ -589,20 +796,7 @@ public class Dashboard extends AppCompatActivity implements
     @Override
     protected void onStop() {
         super.onStop();
-
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath()
-                + "/Android/data/com.example.oops_project/files/users/" + uID;
-
-        try {
-            FileWriter fw = new FileWriter(new File(path, "myfile.txt"));
-            fw.write(categories.size() + "\n");
-            for (category i : categories) {
-                fw.write(i.toString());
-            }
-            fw.close();
-        } catch (IOException e2) {
-            e2.printStackTrace();
-        }
+        writeData();
     }
 
     public boolean isOnline() {
@@ -618,17 +812,178 @@ public class Dashboard extends AppCompatActivity implements
         return false;
     }
 
-    public void writeData()
-    {
+    public boolean insertEvents() {
+        ContentResolver contentResolver;
+        contentResolver = getContentResolver();
+
+        for(event e : events) {
+            Calendar cal = e.getCalendar();
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(CalendarContract.Events.TITLE, e.getName());
+            contentValues.put(CalendarContract.Events.DESCRIPTION, e.getDescription());
+            contentValues.put(CalendarContract.Events.DTSTART, cal.getTimeInMillis());
+            contentValues.put(CalendarContract.Events.DTEND, cal.getTimeInMillis());
+            contentValues.put(CalendarContract.Events.CALENDAR_ID, 1);
+            contentValues.put(CalendarContract.Events.EVENT_TIMEZONE, Calendar.getInstance().getTimeZone().getID());
+
+            Uri uri = contentResolver.insert(CalendarContract.Events.CONTENT_URI, contentValues);
+            if(uri == null) {
+                Toast.makeText(this, "Here while inserting: " + e.getName(), Toast.LENGTH_SHORT).show();
+                return false;
+            }
+
+            long eventID = Long.parseLong(uri.getLastPathSegment());
+            e.setEventId(eventID);
+
+
+            contentValues = new ContentValues();
+            contentValues.put(CalendarContract.Reminders.MINUTES, 1);
+            contentValues.put(CalendarContract.Reminders.EVENT_ID, eventID);
+            contentValues.put(CalendarContract.Reminders.METHOD, CalendarContract.Reminders.METHOD_ALERT);
+
+            uri = contentResolver.insert(CalendarContract.Reminders.CONTENT_URI, contentValues);
+
+            contentValues.put(CalendarContract.Reminders.MINUTES, 10);
+            uri = contentResolver.insert(CalendarContract.Reminders.CONTENT_URI, contentValues);
+
+            contentValues.put(CalendarContract.Reminders.MINUTES, 30);
+            uri = contentResolver.insert(CalendarContract.Reminders.CONTENT_URI, contentValues);
+
+            contentValues.put(CalendarContract.Reminders.MINUTES, 60);
+            uri = contentResolver.insert(CalendarContract.Reminders.CONTENT_URI, contentValues);
+
+
+            if (uri == null) {
+                Toast.makeText(this, "Reminder here while inserting: " + e.getName(), Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public boolean deleteEvents() {
+        ContentResolver contentResolver;
+        contentResolver = getContentResolver();
+        for(event e : events) {
+
+            String where = "_id =" + e.getEventId() + " and " + CalendarContract.Events.CALENDAR_ID + "=" + 1;
+            int uri = contentResolver.delete(CalendarContract.Events.CONTENT_URI, where, null);
+
+            if(uri == 0) {
+                Toast.makeText(this, "Error in deleteEvents: " + e.getName(), Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public void readData() {
+        try {
+            Scanner reader = new Scanner(new File(path, "myfile.txt"));
+            int count = reader.nextInt();
+            reader.nextLine();
+            while (count != 0) {
+                reader.nextLine();
+                int c_ID = reader.nextInt();
+                reader.nextLine();
+                String c_Name = reader.nextLine();
+                String c_shortDes = reader.nextLine();
+                String c_ImgURI = reader.nextLine();
+                int item_count = reader.nextInt();
+                reader.nextLine();
+                ArrayList<item> c_items = new ArrayList<>();
+                while (item_count != 0) {
+                    String i_ID = reader.nextLine();
+                    int c_id = reader.nextInt();
+                    reader.nextLine();
+                    String i_name = reader.nextLine();
+                    String i_price = reader.nextLine();
+                    String i_quantity = reader.nextLine();
+                    String i_imgURI = reader.nextLine();
+                    String i_shareURI = reader.nextLine();
+                    c_items.add(new item(i_ID, c_id, i_name, i_price, i_quantity, i_imgURI, i_shareURI));
+                    item_count--;
+                }
+                reader.nextLine();
+                categories.add(new category(c_ID, c_Name, c_shortDes, c_ImgURI, c_items));
+                count--;
+
+            }
+
+            int countEvent = reader.nextInt();
+            reader.nextLine();
+            while(countEvent != 0)
+            {
+                reader.nextLine();
+                String e_ID = reader.nextLine();
+                long e_eventID = Long.parseLong(reader.nextLine());
+                String e_Name = reader.nextLine();
+                String e_shortDes = reader.nextLine();
+                String e_Date = reader.nextLine();
+                String e_Time = reader.nextLine();
+                reader.nextLine();
+                events.add(new event(e_ID,e_Name,e_shortDes,e_Date,e_Time, e_eventID));
+                countEvent--;
+            }
+            reader.close();
+        } catch (FileNotFoundException e) {
+            File f = new File(Environment.getExternalStorageDirectory(),
+                    "/Android/data/com.example.oops_project/files/users/" + uID + "/");
+            f.mkdirs();
+
+        }
+    }
+
+    public void writeData() {
         try {
             FileWriter fw = new FileWriter(new File(path, "myfile.txt"));
             fw.write(categories.size() + "\n");
             for (category i : categories) {
                 fw.write(i.toString());
             }
+
+            fw.write(events.size() + "\n");
+            for (event i : events) {
+                fw.write(i.toString());
+            }
+
             fw.close();
         } catch (IOException e2) {
             e2.printStackTrace();
+        }
+    }
+
+    private String getRealPathFromURI(Uri contentURI) {
+        String result;
+        Cursor cursor = getContentResolver().query(contentURI, null, null, null, null);
+        if (cursor == null) { // Source is Dropbox or other similar local file path
+            result = contentURI.getPath();
+        } else {
+            cursor.moveToFirst();
+            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+            result = cursor.getString(idx);
+            cursor.close();
+        }
+        return result;
+    }
+
+    public void checkPermission(String[] permissions, int[] requestCode)
+    {
+        ActivityCompat.requestPermissions(Dashboard.this, permissions, 100);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == 100) {
+            if (!(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED)) {
+                finishAndRemoveTask();
+            }
+
         }
     }
 }

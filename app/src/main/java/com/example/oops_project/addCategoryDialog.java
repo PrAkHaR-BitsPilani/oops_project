@@ -58,6 +58,6 @@ public class addCategoryDialog extends DialogFragment {
     }
 
     public interface transferCall {
-        public void onSaveCategory(String name, String des);
+        void onSaveCategory(String name, String des);
     }
 }

@@ -1,6 +1,9 @@
 package com.example.oops_project;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +28,11 @@ public class frag_inventory extends Fragment {
     private RecyclerView categoryRecView;
     private categoryRecViewAdapter adapter;
     Toolbar toolbar;
+    private transferCall transferCall;
+
+    public void setTransferCall(frag_inventory.transferCall transferCall) {
+        this.transferCall = transferCall;
+    }
 
     public frag_inventory(ArrayList<category> categories, FloatingActionButton add, Toolbar toolbar) {
         this.categories = categories;
@@ -37,6 +45,19 @@ public class frag_inventory extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_inventory, container, false);
         adapter = new categoryRecViewAdapter(getActivity(), getFragmentManager(), add_category,toolbar);
+
+        adapter.setTransferCall(new categoryRecViewAdapter.transferCall() {
+            @Override
+            public void imageUploadCategory(categoryRecViewAdapter adapter, int pos) {
+                transferCall.imageUploadCategory(adapter, pos);
+            }
+
+            @Override
+            public void imageUploadItem(itemRecViewAdapter adapter, int pos) {
+                transferCall.imageUploadItem(adapter, pos);
+            }
+        });
+
         categoryRecView = view.findViewById(R.id.categoryRecView);
         categoryRecView.setAdapter(adapter);
         categoryRecView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -53,7 +74,8 @@ public class frag_inventory extends Fragment {
                 dialog.setTransferCall(new addCategoryDialog.transferCall() {
                     @Override
                     public void onSaveCategory(String name, String des) {
-                        String defimgCategoryUri = "https://media.gettyimages.com/photos/closeup-of-multi-colored-toys-over-white-background-picture-id1094028428?k=6&m=1094028428&s=612x612&w=0&h=YDfxr7175ae4yi07DtWOcqtAqi9GUIthBHNZzAF4dO8=";
+                        //Uri path = Uri.parse("android.resource://com.example.oops_project/" + R.drawable.default_image);
+                        String defimgCategoryUri = "android.resource://com.example.oops_project/" + R.drawable.default_image;
                         categories.add(new category(categories.size(), name, des, defimgCategoryUri, new ArrayList<item>()));
                         adapter.notifyItemInserted(categories.size());
                         inst.setVisibility(View.GONE);
@@ -65,6 +87,11 @@ public class frag_inventory extends Fragment {
         });
 
         return view;
+    }
+
+    public interface transferCall {
+        void imageUploadCategory(categoryRecViewAdapter adapter, int pos);
+        void imageUploadItem(itemRecViewAdapter adapter, int pos);
     }
 
 }

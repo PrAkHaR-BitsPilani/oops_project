@@ -1,11 +1,13 @@
 package com.example.oops_project;
 
 import android.content.DialogInterface;
+import android.database.DatabaseUtils;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,6 +29,7 @@ public class ToDoFrag extends Fragment implements DialogCloseListener {
     private ToDoAdapter tasksAdapter;
     private List<ToDoModel> tasklist;
     private DatabaseHandler db;
+    private TextView inst;
 
     public ToDoFrag(FloatingActionButton add) {
         this.add_task = add;
@@ -42,6 +45,9 @@ public class ToDoFrag extends Fragment implements DialogCloseListener {
         //initialize the db class week latest:changed getActivity to getContext
         db = new DatabaseHandler(getActivity());
         db.openDatabase();
+        inst = view.findViewById(R.id.task_instruction);
+
+
 
         //creating and setting the recyclerview
         tasksAdapter = new ToDoAdapter(db, getActivity(), getFragmentManager());
@@ -49,23 +55,21 @@ public class ToDoFrag extends Fragment implements DialogCloseListener {
         tasksrecyclerview.setAdapter(tasksAdapter);
         tasksrecyclerview.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-//        ToDoModel task = new ToDoModel();
-//        task.setTask("this is a test task");
-//        task.setStatus(0);
-//        task.setId(1);
-
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ToDoTouchHelper(tasksAdapter));
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ToDoTouchHelper(tasksAdapter, getActivity()));
         itemTouchHelper.attachToRecyclerView(tasksrecyclerview);    //last line entered
         tasklist = db.getAllTasks();    //loading the stored data of tasks
         Collections.reverse(tasklist);
         tasksAdapter.setTasks(tasklist);
 
+        if((int) (DatabaseUtils.longForQuery(db.getReadableDatabase(), "SELECT COUNT (*) FROM todo", null)) == 0) {
+            inst.setVisibility(View.VISIBLE);
+        }
+
         add_task.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                new AddNewTask(tasksAdapter).show(getFragmentManager(), AddNewTask.TAG);// changed getsupportfragmentmanager to getfragmentmanager to getActivity().getsupportfragman
-// attempt to show to new task after being entered.
+                new AddNewTask(tasksAdapter, view).show(getFragmentManager(), AddNewTask.TAG);
             }
         });
 

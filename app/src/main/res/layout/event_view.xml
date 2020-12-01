@@ -7,22 +7,24 @@
     android:layout_margin="10dp"
     android:elevation="10dp"
     app:cardCornerRadius="7dp"
-    app:cardElevation="10dp"
-    app:strokeWidth="1dp">
+    app:cardElevation="10dp">
 
     <RelativeLayout
         android:id="@+id/shortEvent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:background="@color/background_grey">
 
         <TextView
             android:id="@+id/nameEvent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="7dp"
+            android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
+            android:layout_marginRight="40dp"
+            android:maxLength="50"
             android:text="Event Name"
-            android:textColor="@color/black"
+            android:textColor="@color/white"
             android:textSize="25sp"
             android:textStyle="bold" />
 
@@ -31,10 +33,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/nameEvent"
-            android:layout_marginLeft="7dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginRight="80dp"
             android:layout_marginBottom="10dp"
+            android:maxLength="50"
             android:text="Description"
+            android:textColor="@color/white"
             android:textSize="20sp" />
 
         <TextView
@@ -42,10 +47,44 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/desEvent"
-            android:layout_marginLeft="7dp"
+            android:layout_marginLeft="10dp"
             android:layout_marginBottom="10dp"
             android:text="20/11/2020\n8:30 AM"
+            android:textColor="@color/white"
             android:visibility="gone" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/deleteEvent"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="40dp"
+            android:layout_height="32.5dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="10dp"
+            app:icon="@drawable/ic_delete" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/editTimeEvent"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="40dp"
+            android:layout_height="32.5dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:paddingBottom="17dp"
+            android:visibility="gone"
+            app:icon="@drawable/ic_clock" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/editDateEvent"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="40dp"
+            android:layout_height="32.5dp"
+            android:layout_alignParentBottom="true"
+            android:layout_toLeftOf="@+id/editTimeEvent"
+            android:paddingBottom="17dp"
+            android:visibility="gone"
+            app:icon="@drawable/ic_calendar" />
+
 
     </RelativeLayout>
 

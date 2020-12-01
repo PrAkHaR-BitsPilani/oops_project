@@ -1,12 +1,15 @@
 package com.example.oops_project;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.text.Html;
 import android.view.View;
+import android.view.animation.ScaleAnimation;
 
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -14,12 +17,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class ToDoTouchHelper extends ItemTouchHelper.SimpleCallback {
 
-    private ToDoAdapter adapter;
+    private final ToDoAdapter adapter;
+    private Context mContext;
 
-    public ToDoTouchHelper(ToDoAdapter adapter) {
+    public ToDoTouchHelper(ToDoAdapter adapter, Context mContext) {
         //enabling both left and right swipe functions
         super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
         this.adapter = adapter;
+        this.mContext = mContext;
     }
 
     //not needed
@@ -34,10 +39,9 @@ public class ToDoTouchHelper extends ItemTouchHelper.SimpleCallback {
         final int position = viewHolder.getAdapterPosition();
         if (direction == ItemTouchHelper.LEFT) {
 
-//            AlertDialog.Builder builder = new AlertDialog.Builder(adapter.getContext());
-            AlertDialog.Builder builder = new AlertDialog.Builder(adapter.getContext());
+            AlertDialog.Builder builder = new AlertDialog.Builder(adapter.getContext(), R.style.MyDialogTheme);
             builder.setTitle("Delete Task");
-            builder.setMessage("Delete this task?");
+            builder.setMessage(Html.fromHtml("<font color='#FFFFFF'>Are you sure you want to delete this task?</font>"));
             builder.setPositiveButton("Confirm",
                     new DialogInterface.OnClickListener() {
                         @Override
@@ -52,6 +56,13 @@ public class ToDoTouchHelper extends ItemTouchHelper.SimpleCallback {
                 }
             });
             AlertDialog dialog = builder.create();
+            dialog.setOnShowListener( new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface arg0) {
+                    dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(mContext, R.color.blue));
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(mContext, R.color.blue));
+                }
+            });
             dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
                 @Override
                 public void onCancel(DialogInterface dialog) {
@@ -79,10 +90,10 @@ public class ToDoTouchHelper extends ItemTouchHelper.SimpleCallback {
         //swiping in left direction
         if (dX > 0) {
             icon = ContextCompat.getDrawable(adapter.getContext(), R.drawable.ic_baseline_edit);
-            background = new ColorDrawable((ContextCompat.getColor(adapter.getContext(), R.color.purple_200)));
+            background = new ColorDrawable((ContextCompat.getColor(adapter.getContext(), R.color.blue)));
         } else {
             icon = ContextCompat.getDrawable(adapter.getContext(), R.drawable.ic_baseline_delete);
-            background = new ColorDrawable(Color.RED);
+            background = new ColorDrawable(ContextCompat.getColor(mContext, R.color.delete_red));
         }
         // making margins
         assert icon != null;

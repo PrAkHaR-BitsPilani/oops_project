@@ -25,10 +25,17 @@ public class frag_item extends Fragment implements IOnBackPressed {
     FloatingActionButton add_item;
     private RecyclerView itemRecView;
     private itemRecViewAdapter adapter;
+    private transferCall transferCall;
+    private int categoryId;
 
-    public frag_item(ArrayList<item> items, FloatingActionButton add) {
+    public void setTransferCall(frag_item.transferCall transferCall) {
+        this.transferCall = transferCall;
+    }
+
+    public frag_item(ArrayList<item> items, FloatingActionButton add, int categoryId) {
         this.items = items;
         this.add_item = add;
+        this.categoryId = categoryId;
     }
 
     @Nullable
@@ -37,6 +44,12 @@ public class frag_item extends Fragment implements IOnBackPressed {
         View view = inflater.inflate(R.layout.fragment_items, container, false);
         itemRecView = view.findViewById(R.id.itemRecView);
         adapter = new itemRecViewAdapter(getActivity(), getFragmentManager());
+        adapter.setTransferCall(new itemRecViewAdapter.transferCall() {
+            @Override
+            public void imageUploadItem(itemRecViewAdapter adapter, int pos) {
+                transferCall.imageUploadItem(adapter, pos);
+            }
+        });
         itemRecView.setAdapter(adapter);
         itemRecView.setLayoutManager(new LinearLayoutManager(getActivity()));
         adapter.setItems(items);
@@ -51,19 +64,22 @@ public class frag_item extends Fragment implements IOnBackPressed {
                 dialog.setTransferCall(new addItemDialog.transferCall() {
                     @Override
                     public void onSaveItem(String name, String price, String quantity) {
-                        String defImgItemUri = "https://media.gettyimages.com/photos/closeup-of-multi-colored-toys-over-white-background-picture-id1094028428?k=6&m=1094028428&s=612x612&w=0&h=YDfxr7175ae4yi07DtWOcqtAqi9GUIthBHNZzAF4dO8=";
-                        items.add(new item("" + items.size(), name, price, quantity, defImgItemUri));
+                        String defImg = "android.resource://com.example.oops_project/" + R.drawable.default_image;
+                        items.add(new item("" + items.size(), categoryId, name, price, quantity, defImg, "default_image"));
                         adapter.notifyItemInserted(items.size());
                         inst.setVisibility(View.GONE);
                         Toast.makeText(getActivity(), name + " added!", Toast.LENGTH_SHORT).show();
                     }
                 });
                 dialog.show(getFragmentManager(), "Adding item...");
-                ;
             }
         });
 
         return view;
+    }
+
+    public interface transferCall {
+        void imageUploadItem(itemRecViewAdapter adapter, int pos);
     }
 
     public boolean onBackPressed() {

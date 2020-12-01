@@ -2,9 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-
-    <item android:title="General">
-        <menu>
+    <item android:title="General"
+        android:id="@+id/generalHeader">
+        <menu >
             <item
                 android:id="@+id/inventory_list"
                 android:icon="@drawable/ic_inventory"
@@ -21,7 +21,8 @@
         </menu>
     </item>
 
-    <item android:title="User">
+    <item android:title="User"
+        android:id="@+id/userHeader">
         <menu>
             <item
                 android:id="@+id/account"
@@ -35,7 +36,8 @@
         </menu>
     </item>
 
-    <item android:title="Sync">
+    <item android:title="Sync"
+        android:id="@+id/syncHeader">
         <menu>
             <item
                 android:id="@+id/upload"

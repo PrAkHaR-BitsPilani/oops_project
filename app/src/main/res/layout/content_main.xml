@@ -8,7 +8,8 @@
     <FrameLayout
         android:id="@+id/container_fragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/background_black">
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/add"
@@ -17,11 +18,10 @@
             android:layout_gravity="bottom|right"
             android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp"
-            android:backgroundTint="@color/design_default_color_secondary"
+            android:backgroundTint="@color/pink"
             android:elevation="50dp"
             android:src="@drawable/ic_add"
-            app:backgroundTint="@color/white"
-            app:rippleColor="@color/white" />
+            app:backgroundTint="@color/pink"/>
 
     </FrameLayout>
 

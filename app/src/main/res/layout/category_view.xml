@@ -6,14 +6,15 @@
     android:layout_height="wrap_content"
     android:layout_margin="10dp"
     android:elevation="10dp"
+    android:foregroundTintMode="src_in"
     app:cardCornerRadius="7dp"
-    app:cardElevation="10dp"
-    app:strokeWidth="1dp">
+    app:cardElevation="10dp">
 
     <RelativeLayout
         android:id="@+id/shortCategory"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/background_grey">
 
         <ImageView
             android:id="@+id/imgCategory"
@@ -21,18 +22,20 @@
             android:layout_height="200dp"
             android:layout_centerHorizontal="true"
             android:scaleType="fitXY"
-            android:src="@mipmap/ic_launcher" />
+            android:visibility="gone"
+            android:src="@drawable/default_image" />
 
         <TextView
             android:id="@+id/nameCategory"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/imgCategory"
-            android:layout_marginLeft="7dp"
+            android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
+            android:layout_marginRight="40dp"
             android:text="Category Name"
-            android:textColor="@color/black"
-            android:textSize="30sp"
+            android:textColor="@color/white"
+            android:textSize="33sp"
             android:textStyle="bold" />
 
         <TextView
@@ -40,10 +43,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/nameCategory"
-            android:layout_marginLeft="7dp"
+            android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
             android:text="Short Description"
-            android:textSize="15sp"
+            android:textColor="@color/white"
+            android:textSize="16.5sp"
             android:visibility="gone" />
 
         <com.google.android.material.button.MaterialButton
@@ -52,20 +57,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/desCategory"
+            android:layout_marginLeft="4dp"
             android:layout_marginTop="0dp"
             android:text="VIEW MORE"
-            app:rippleColor="@color/white" />
+            android:textColor="@color/pink" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/imgUpdateCategory"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="40dp"
             android:layout_height="wrap_content"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:id="@+id/imgUpdateCategory"
-            android:layout_marginRight="7dp"
-            android:layout_above="@id/deleteCategory"
+            android:layout_below="@+id/imgCategory"
             android:layout_alignParentEnd="true"
-            app:rippleColor="@color/white"
-            app:icon="@drawable/ic_updatephoto"/>
+            android:layout_marginTop="7dp"
+            android:visibility="gone"
+            app:icon="@drawable/ic_updatephoto"
+            app:rippleColor="@color/white" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/deleteCategory"

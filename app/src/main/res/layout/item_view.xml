@@ -7,23 +7,24 @@
     android:layout_margin="10dp"
     android:elevation="10dp"
     app:cardCornerRadius="7dp"
-    app:cardElevation="10dp"
-    app:strokeWidth="1dp">
+    app:cardElevation="10dp">
 
     <RelativeLayout
         android:id="@+id/shortItem"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/background_grey">
 
         <TextView
             android:id="@+id/nameItem"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="7dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="80dp"
             android:text="Item Name"
-            android:textColor="@color/black"
-            android:textSize="30sp"
+            android:textColor="@color/white"
+            android:textSize="33sp"
             android:textStyle="bold" />
 
         <ImageView
@@ -33,75 +34,73 @@
             android:layout_below="@id/nameItem"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="10dp"
+            android:visibility="visible"
             android:scaleType="fitXY"
-            android:src="@mipmap/ic_launcher" />
+            android:src="@drawable/default_image" />
 
         <TextView
             android:id="@+id/quantityItem"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/imgItem"
-            android:layout_marginLeft="7dp"
+            android:layout_marginLeft="10dp"
             android:layout_marginTop="15dp"
+            android:layout_marginRight="40dp"
             android:text="Quantity"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textColor="@color/white"
+            android:textSize="16.5sp" />
 
         <TextView
             android:id="@+id/priceItem"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/quantityItem"
-            android:layout_marginLeft="7dp"
+            android:layout_marginLeft="10dp"
             android:layout_marginTop="16dp"
+            android:layout_marginRight="40dp"
             android:layout_marginBottom="10dp"
             android:text="Price"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textColor="@color/white"
+            android:textSize="16.5sp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/shareItem"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="40dp"
-            android:layout_height="30dp"
-            android:layout_alignTop="@id/nameItem"
-            android:layout_alignBottom="@id/nameItem"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             app:icon="@drawable/ic_share"
             app:rippleColor="@color/white" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/imgUpdateItem"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="40dp"
             android:layout_height="wrap_content"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:id="@+id/imgUpdateItem"
+            android:layout_alignParentTop="true"
             android:layout_toLeftOf="@id/shareItem"
-            android:layout_marginRight="7dp"
-            android:layout_alignTop="@id/nameItem"
-            app:rippleColor="@color/white"
-            android:layout_alignBottom="@id/nameItem"
-            app:icon="@drawable/ic_updatephoto"/>
+            android:visibility="gone"
+            app:icon="@drawable/ic_updatephoto"
+            app:rippleColor="@color/white" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/deleteItem"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="40dp"
             android:layout_height="wrap_content"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_below="@id/imgItem"
-            android:layout_alignTop="@id/quantityItem"
-            android:layout_alignBottom="@id/quantityItem"
+            android:layout_alignParentEnd="true"
             app:icon="@drawable/ic_delete"
-            app:rippleColor="@color/white"
-            android:layout_alignParentEnd="true"/>
+            app:rippleColor="@color/white" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/editItem"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="40dp"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
+
             android:layout_below="@id/deleteItem"
-            android:layout_alignTop="@id/priceItem"
-            android:layout_alignBottom="@id/priceItem"
             android:layout_alignParentEnd="true"
             app:icon="@drawable/ic_edit"
             app:rippleColor="@color/white" />

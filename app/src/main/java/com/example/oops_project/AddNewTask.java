@@ -2,6 +2,7 @@ package com.example.oops_project;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.database.DatabaseUtils;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
@@ -24,12 +25,14 @@ public class AddNewTask extends DialogFragment {
     public static final String TAG = "ActionBottomDialog";
     private EditText newTaskText;
     private Button newTaskSavedButton;
-    private ToDoAdapter tasksAdapter;
+    private final ToDoAdapter tasksAdapter;
+    private final View parentView;
 
     private DatabaseHandler db;
 
-    public AddNewTask(ToDoAdapter tasksAdapter) {
+    public AddNewTask(ToDoAdapter tasksAdapter, View parentView) {
         this.tasksAdapter = tasksAdapter;
+        this.parentView = parentView;
     }
 
     @Override
@@ -65,7 +68,7 @@ public class AddNewTask extends DialogFragment {
             newTaskText.setText(task);
             assert task != null;
             if (task.length() > 0) {
-                newTaskSavedButton.setTextColor(ContextCompat.getColor(getContext(), R.color.black));
+                newTaskSavedButton.setTextColor(ContextCompat.getColor(getContext(), R.color.pink));
             }
         }
 
@@ -85,7 +88,7 @@ public class AddNewTask extends DialogFragment {
                     newTaskSavedButton.setTextColor(Color.GRAY);
                 } else {
                     newTaskSavedButton.setEnabled(true);
-                    newTaskSavedButton.setTextColor(ContextCompat.getColor(getContext(), R.color.black));
+                    newTaskSavedButton.setTextColor(ContextCompat.getColor(getContext(), R.color.pink));
                 }
             }
 
@@ -115,6 +118,12 @@ public class AddNewTask extends DialogFragment {
                     task.setStatus(0);
                     db.insertTask(task);
 
+                    if((int) (DatabaseUtils.longForQuery(db.getReadableDatabase(), "SELECT COUNT (*) FROM todo", null)) == 0) {
+                        parentView.findViewById(R.id.task_instruction).setVisibility(View.VISIBLE);
+                    } else {
+                        parentView.findViewById(R.id.task_instruction).setVisibility(View.GONE);
+                    }
+
                     tasksAdapter.setTodoList(db.getAllTasks());
                     tasksAdapter.notifyDataSetChanged();
                 }
@@ -126,6 +135,8 @@ public class AddNewTask extends DialogFragment {
     @Override
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
+        tasksAdapter.setTodoList(db.getAllTasks());
+        tasksAdapter.notifyDataSetChanged();
 
         Activity activity = getActivity();
         if (activity instanceof DialogCloseListener) {

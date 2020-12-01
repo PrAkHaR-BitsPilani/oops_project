@@ -1,7 +1,13 @@
 package com.example.oops_project;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
+import android.provider.MediaStore;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,25 +18,38 @@ import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.transition.TransitionManager;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class categoryRecViewAdapter extends RecyclerView.Adapter<categoryRecViewAdapter.ViewHolder> {
 
     FloatingActionButton add;
     private ArrayList<category> categories = new ArrayList<>();
-    private Context mContext;
-    private FragmentManager fragmentManager;
+    private final Context mContext;
+    private final FragmentManager fragmentManager;
     Toolbar toolbar;
+    private transferCall transferCall;
+
+    public void setTransferCall(categoryRecViewAdapter.transferCall transferCall) {
+        this.transferCall = transferCall;
+    }
+
+    public ArrayList<category> getCategories() {
+        return categories;
+    }
 
     public categoryRecViewAdapter(Context mContext, FragmentManager fragmentManager, FloatingActionButton add, Toolbar toolbar) {
         this.mContext = mContext;
@@ -48,15 +67,58 @@ public class categoryRecViewAdapter extends RecyclerView.Adapter<categoryRecView
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+
+        holder.imgUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                transferCall.imageUploadCategory(categoryRecViewAdapter.this, holder.getAdapterPosition());
+            }
+        });
         holder.nameCategory.setText(categories.get(position).getName());
         holder.desCategory.setText(categories.get(position).getShortDes());
-        Glide.with(mContext).asBitmap().load(categories.get(position).getImageURL()).into(holder.imgCategory);
+
+        String imgUri = categories.get(position).getImageURL();
+
+        File file = new File(imgUri);
+        if(!file.exists()) {
+            imgUri = "android.resource://com.example.oops_project/" + R.drawable.default_image;
+            categories.get(position).setImageURL(imgUri);
+        }
+
+        Glide.with(mContext).asBitmap()
+                .load(imgUri)
+                .apply(RequestOptions.skipMemoryCacheOf(true))
+                .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
+                .into(holder.imgCategory);
+
+        /*holder.cardCategory.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if(holder.imgCategory.getVisibility() == View.VISIBLE) {
+                    holder.imgCategory.setVisibility(View.GONE);
+                    holder.imgUpdate.setVisibility(View.GONE);
+                } else {
+                    holder.imgCategory.setVisibility(View.VISIBLE);
+                    holder.imgUpdate.setVisibility(View.VISIBLE);
+                }
+
+                return false;
+            }
+        });*/
+
         holder.cardCategory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //Toast.makeText(mContext, categories.get(position).getName(), Toast.LENGTH_SHORT).show();
                 toolbar.setTitle(categories.get(position).getName());
-                fragmentManager.beginTransaction().replace(R.id.container_fragment, new frag_item(categories.get(position).getItems(), add)).addToBackStack(null).commit();
+                frag_item frag_item = new frag_item(categories.get(position).getItems(), add, categories.get(position).getId());
+                frag_item.setTransferCall(new frag_item.transferCall() {
+                    @Override
+                    public void imageUploadItem(itemRecViewAdapter adapter, int pos) {
+                        transferCall.imageUploadItem(adapter, pos);
+                    }
+                });
+                fragmentManager.beginTransaction().replace(R.id.container_fragment, frag_item).addToBackStack(null).commit();
             }
         });
         holder.desCategory.setText(categories.get(position).getShortDes());
@@ -64,10 +126,14 @@ public class categoryRecViewAdapter extends RecyclerView.Adapter<categoryRecView
         if (categories.get(position).isExpanded()) {
             TransitionManager.beginDelayedTransition((holder.cardCategory));
             holder.viewMore.setText("VIEW LESS");
+            holder.imgCategory.setVisibility(View.VISIBLE);
+            holder.imgUpdate.setVisibility(View.VISIBLE);
             holder.desCategory.setVisibility(View.VISIBLE);
         } else {
             TransitionManager.beginDelayedTransition((holder.cardCategory));
             holder.viewMore.setText("VIEW MORE");
+            holder.imgCategory.setVisibility(View.GONE);
+            holder.imgUpdate.setVisibility(View.GONE);
             holder.desCategory.setVisibility(View.GONE);
         }
     }
@@ -84,14 +150,14 @@ public class categoryRecViewAdapter extends RecyclerView.Adapter<categoryRecView
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        private ImageView imgCategory;
-        private TextView nameCategory;
-        private TextView desCategory;
-        private MaterialCardView cardCategory;
-        private RelativeLayout shortCategory;
-        private MaterialButton viewMore;
-        private MaterialButton deleteCategory;
-        private MaterialButton imgUpdate;
+        private final ImageView imgCategory;
+        private final TextView nameCategory;
+        private final TextView desCategory;
+        private final MaterialCardView cardCategory;
+        private final RelativeLayout shortCategory;
+        private final MaterialButton viewMore;
+        private final MaterialButton deleteCategory;
+        private final MaterialButton imgUpdate;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -117,26 +183,43 @@ public class categoryRecViewAdapter extends RecyclerView.Adapter<categoryRecView
                 @Override
                 public void onClick(View v) {
 
-                    MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(mContext).setTitle("Delete " + categories.get(getAdapterPosition()).getName()).setMessage("Are you sure you want to delete this category?");
-                    dialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                    MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(mContext, R.style.MyDialogTheme);
+                    dialog.setTitle("Delete " + categories.get(getAdapterPosition()).getName());
+                    dialog.setMessage(Html.fromHtml("<font color='#FFFFFF'>Are you sure you want to delete this category?</font>"));
+                    dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
                         }
                     });
-                    dialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    dialog.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             Toast.makeText(mContext, categories.get(getAdapterPosition()).getName() + " deleted!", Toast.LENGTH_SHORT).show();
                             categories.remove(getAdapterPosition());
+
+                            if(categories.size() == 0) {
+                                View rootView = ((Activity)mContext).getWindow().getDecorView().findViewById(android.R.id.content);
+                                View v = rootView.findViewById(R.id.category_instruction);
+                                v.setVisibility(View.VISIBLE);
+                            }
                             notifyItemRemoved(getAdapterPosition());
                             dialog.dismiss();
                         }
                     });
-                    dialog.show();
+                    androidx.appcompat.app.AlertDialog d = dialog.create();
+                    d.show();
+                    d.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(mContext, R.color.blue));
+                    d.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(mContext, R.color.blue));
+
                 }
             });
 
         }
+    }
+
+    public interface transferCall {
+        void imageUploadCategory(categoryRecViewAdapter adapter, int pos);
+        void imageUploadItem(itemRecViewAdapter adapter, int pos);
     }
 }

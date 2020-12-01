@@ -49,7 +49,6 @@ public class editItemDialog extends DialogFragment {
                     priceItem.setError("Price cannot be empty!");
                 else {
                     transferCall.onSaveEditItem(priceItem.getText().toString().trim(), quantityItem.getText().toString().trim());
-                    ;
                     dismiss();
                 }
 
@@ -60,7 +59,7 @@ public class editItemDialog extends DialogFragment {
     }
 
     public interface transferCall {
-        public void onSaveEditItem(String price, String quantity);
+        void onSaveEditItem(String price, String quantity);
     }
 
 }

@@ -31,7 +31,7 @@ public class VerifyPhone extends AppCompatActivity {
     EditText otpNumberOne, otpNumberTwo, otpNumberThree, otpNumberFour, otpNumberFive, otpNumberSix;
     Button verifyPhone, resendOTP;
     Boolean otpValid = true;
-    TextView textView3;
+    TextView textView3, textView4;
     LinearLayout greyScreen;
     ProgressBar progressBar;
 
@@ -65,13 +65,19 @@ public class VerifyPhone extends AppCompatActivity {
         resendOTP = findViewById(R.id.resendOTP);
 
         textView3 = findViewById(R.id.textView3);
+        textView4 = findViewById(R.id.textView4);
         greyScreen = findViewById(R.id.greyScreenVerifyPhone);
         progressBar = findViewById(R.id.progressBarVerifyPhone);
 
-        greyScreen.setVisibility(View.VISIBLE);
-        progressBar.setVisibility(View.VISIBLE);
         verifyPhone.setAlpha(0.3f);
-        resendOTP.setAlpha(0.3f);
+        textView4.setAlpha(0.3f);
+        textView3.setAlpha(0.3f);
+        otpNumberOne.setAlpha(0.3f);
+        otpNumberTwo.setAlpha(0.3f);
+        otpNumberThree.setAlpha(0.3f);
+        otpNumberFour.setAlpha(0.3f);
+        otpNumberFive.setAlpha(0.3f);
+        otpNumberSix.setAlpha(0.3f);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
@@ -103,7 +109,15 @@ public class VerifyPhone extends AppCompatActivity {
                     greyScreen.setVisibility(View.VISIBLE);
                     progressBar.setVisibility(View.VISIBLE);
                     verifyPhone.setAlpha(0.3f);
-                    resendOTP.setAlpha(0.3f);
+
+                    textView4.setAlpha(0.3f);
+                    textView3.setAlpha(0.3f);
+                    otpNumberOne.setAlpha(0.3f);
+                    otpNumberTwo.setAlpha(0.3f);
+                    otpNumberThree.setAlpha(0.3f);
+                    otpNumberFour.setAlpha(0.3f);
+                    otpNumberFive.setAlpha(0.3f);
+                    otpNumberSix.setAlpha(0.3f);
                     getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
@@ -126,6 +140,14 @@ public class VerifyPhone extends AppCompatActivity {
                 progressBar.setVisibility(View.GONE);
                 verifyPhone.setAlpha(1f);
                 resendOTP.setAlpha(1f);
+                textView4.setAlpha(1f);
+                textView3.setAlpha(1f);
+                otpNumberOne.setAlpha(1f);
+                otpNumberTwo.setAlpha(1f);
+                otpNumberThree.setAlpha(1f);
+                otpNumberFour.setAlpha(1f);
+                otpNumberFive.setAlpha(1f);
+                otpNumberSix.setAlpha(1f);
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                 Toast.makeText(getApplicationContext(), "OTP has been sent!", Toast.LENGTH_LONG).show();
             }
