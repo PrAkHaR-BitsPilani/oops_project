@@ -11,7 +11,7 @@
         android:layout_height="match_parent"
         android:background="@color/background_black">
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
+        <com.example.oops_project.dragFAB
             android:id="@+id/add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -233,12 +233,6 @@ public class Dashboard extends AppCompatActivity implements
         //creating add button
 
         add_button = findViewById(R.id.add);
-        add_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                add_category();
-            }
-        });
 
         readData();
 
@@ -787,10 +781,6 @@ public class Dashboard extends AppCompatActivity implements
     public void onDestroy() {
         super.onDestroy();
         unregisterReceiver(onDownloadComplete);
-    }
-
-    public void add_category() {
-        Toast.makeText(Dashboard.this, "adding", Toast.LENGTH_SHORT).show();
     }
 
     @Override
