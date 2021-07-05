@@ -1,5 +1,5 @@
 # OOPS Project
-This was a college project given to us in which we had to make an android app in one month time.
-(PS: It was made during COVID lockdown by ME , Aneesh Rao , Gaurvit Kumar)
+We raced against time to finish creating this app within a month.
+(PS: It was made during COVID lockdown by  Aneesh Rao, Gaurvit Kumar and Prakhar Agarwal)
 
-# for more info see project report
+# For more info, please view the project report
