@@ -1,12 +1,19 @@
 package com.example.oops_project;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
@@ -18,8 +25,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class frag_inventory extends Fragment {
 
@@ -29,6 +38,7 @@ public class frag_inventory extends Fragment {
     private categoryRecViewAdapter adapter;
     Toolbar toolbar;
     private transferCall transferCall;
+    private MaterialSearchView searchView;
 
     public void setTransferCall(frag_inventory.transferCall transferCall) {
         this.transferCall = transferCall;
@@ -45,6 +55,22 @@ public class frag_inventory extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_inventory, container, false);
         adapter = new categoryRecViewAdapter(getActivity(), getFragmentManager(), add_category,toolbar);
+
+        searchView = (MaterialSearchView) Objects.requireNonNull(getActivity()).findViewById(R.id.searchBar);
+        searchView.setHint("Search Category");
+        searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Toast.makeText(getActivity(), query, Toast.LENGTH_SHORT).show();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return true;
+            }
+        });
+        setHasOptionsMenu(true);
 
         adapter.setTransferCall(new categoryRecViewAdapter.transferCall() {
             @Override
@@ -87,6 +113,14 @@ public class frag_inventory extends Fragment {
         });
 
         return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+
+        inflater.inflate(R.menu.search_menu , menu);
+        MenuItem search = menu.findItem(R.id.actionSearch);
+        searchView.setMenuItem(search);
     }
 
     public interface transferCall {

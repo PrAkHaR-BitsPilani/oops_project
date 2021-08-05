@@ -4,13 +4,12 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
-import android.provider.MediaStore;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -33,15 +32,49 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
-public class categoryRecViewAdapter extends RecyclerView.Adapter<categoryRecViewAdapter.ViewHolder> {
+public class categoryRecViewAdapter extends RecyclerView.Adapter<categoryRecViewAdapter.ViewHolder> implements Filterable {
 
     FloatingActionButton add;
     private ArrayList<category> categories = new ArrayList<>();
+    private ArrayList<category> categoriesFiltered;
     private final Context mContext;
     private final FragmentManager fragmentManager;
     Toolbar toolbar;
     private transferCall transferCall;
+    private Filter categoryFilter = new Filter() {
+        @Override
+        protected Filter.FilterResults performFiltering(CharSequence constraint) {
+            List<category> filteredCategories = new ArrayList<>();
+            if(constraint == null || constraint.length() == 0)
+                filteredCategories.addAll(categories);
+            else{
+                String pattern = constraint.toString().toLowerCase().trim();
+                for(category e : categories){
+                    if(e.getName().toLowerCase().contains(pattern))
+                        filteredCategories.add(e);
+                }
+            }
+            Filter.FilterResults results = new Filter.FilterResults();
+            results.values = filteredCategories;
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, Filter.FilterResults results) {
+                categories.clear();
+                categories.addAll((ArrayList<category>)results.values);
+                notifyDataSetChanged();
+        }
+    };
+
+    @Override
+    public Filter getFilter() {
+        return categoryFilter;
+    }
+
+
 
     public void setTransferCall(categoryRecViewAdapter.transferCall transferCall) {
         this.transferCall = transferCall;
